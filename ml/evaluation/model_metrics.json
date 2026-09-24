@@ -1,0 +1,79 @@
+{
+  "metadata": {
+    "project_ps_id": "SIH26017",
+    "team": "NEXORA_TAU",
+    "training_samples": 2000,
+    "testing_samples": 500,
+    "features_count": 33,
+    "feature_names": [
+      "state_Andhra Pradesh",
+      "state_Bihar",
+      "state_Gujarat",
+      "state_Karnataka",
+      "state_Madhya Pradesh",
+      "state_Maharashtra",
+      "state_Odisha",
+      "state_Rajasthan",
+      "state_Tamil Nadu",
+      "state_Uttar Pradesh",
+      "project_type_Highway Expansion",
+      "project_type_Industrial Park",
+      "project_type_Metro Rail Corridor",
+      "project_type_Port Connectivity Highway",
+      "project_type_Railway Dedicated Freight",
+      "project_type_Solar Energy Park",
+      "current_stage_R&R Scheme Implementation",
+      "current_stage_Section 11 (Preliminary Notification)",
+      "current_stage_Section 19 (Declaration of Acquisition)",
+      "current_stage_Section 23 (Award Enquiry & Valuation)",
+      "current_stage_Section 30 (Physical Possession Taken)",
+      "total_area_ha",
+      "total_parcels",
+      "affected_families",
+      "compensation_delay_days",
+      "active_legal_disputes",
+      "pending_statutory_approvals",
+      "rr_progress_pct",
+      "documentation_deficiency_score",
+      "landowner_resistance_index",
+      "survey_amendments_count",
+      "base_budget_cr",
+      "daily_delay_cost_lakhs"
+    ],
+    "classes": [
+      "LOW",
+      "MEDIUM",
+      "HIGH"
+    ]
+  },
+  "classification": {
+    "CatBoostClassifier": {
+      "accuracy": 0.922,
+      "precision": 0.9216,
+      "recall": 0.922,
+      "f1_score": 0.9216,
+      "roc_auc": 0.9862
+    },
+    "LightGBMClassifier": {
+      "accuracy": 0.902,
+      "precision": 0.9013,
+      "recall": 0.902,
+      "f1_score": 0.9015,
+      "roc_auc": 0.9779
+    },
+    "selected_best_model": "CatBoostClassifier"
+  },
+  "regression": {
+    "CatBoostRegressor": {
+      "mae": 6.92,
+      "rmse": 8.54,
+      "r2": 0.9554
+    },
+    "LightGBMRegressor": {
+      "mae": 8.06,
+      "rmse": 10.15,
+      "r2": 0.9369
+    },
+    "selected_best_model": "CatBoostRegressor"
+  }
+}
