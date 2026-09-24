@@ -1,0 +1,156 @@
+<div class="projects-page">
+  <div class="page-header">
+    <div class="header-left">
+      <span class="sub-heading">
+        @if (isCriticalOnly()) {
+          HIGH PRIORITY ALERT • URGENT REVENUE & LEGAL INTERVENTIONS
+        } @else {
+          NATIONAL INFRASTRUCTURE PIPELINE • LAND ACQUISITION PORTFOLIO
+        }
+      </span>
+      <h1>
+        @if (isCriticalOnly()) {
+          Critical Projects & High Delay Risk Pipeline
+        } @else {
+          All Monitored Infrastructure Projects
+        }
+      </h1>
+      <p class="description">
+        @if (isCriticalOnly()) {
+          Showing projects with High delay risk (&ge; 60 days delay or critical legal/statutory bottlenecks requiring SLAO action).
+        } @else {
+          Real-time tracking of 12 strategic infrastructure projects across India with AI risk scores, predicted delay days, and cost overruns.
+        }
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="loadProjects()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <!-- Filters Toolbar -->
+  <div class="card filter-card">
+    <div class="filter-bar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input
+          type="text"
+          placeholder="Search by project name, code, state, or district..."
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+        />
+      </div>
+
+      <div class="filter-controls">
+        <select class="form-select" [ngModel]="selectedState()" (ngModelChange)="selectedState.set($event)">
+          <option value="ALL">All States</option>
+          @for (s of availableStates(); track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
+
+        <select class="form-select" [ngModel]="selectedType()" (ngModelChange)="selectedType.set($event)">
+          <option value="ALL">All Project Types</option>
+          @for (t of availableTypes(); track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
+
+        @if (!isCriticalOnly()) {
+          <select class="form-select" [ngModel]="selectedRisk()" (ngModelChange)="selectedRisk.set($event)">
+            <option value="ALL">All Risk Levels</option>
+            <option value="HIGH">High Risk</option>
+            <option value="MEDIUM">Medium Risk</option>
+            <option value="LOW">Low Risk</option>
+          </select>
+        }
+
+        <select class="form-select" [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)">
+          <option value="risk_desc">Sort by Risk Score (High to Low)</option>
+          <option value="delay_desc">Sort by Predicted Delay Days</option>
+          <option value="cost_desc">Sort by Cost Impact (₹ Cr)</option>
+          <option value="progress_asc">Sort by Progress (Lowest First)</option>
+        </select>
+
+        <button class="btn btn-outline" (click)="resetFilters()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Projects Grid / Cards View -->
+  <div class="projects-grid">
+    @for (p of filteredProjects(); track p.id) {
+      <div class="project-card" [class.card-high]="p.risk_level === 'HIGH'" [class.card-medium]="p.risk_level === 'MEDIUM'" [class.card-low]="p.risk_level === 'LOW'">
+        <div class="card-top">
+          <div class="project-badges">
+            <span class="code-badge font-mono">{{ p.project_code }}</span>
+            <span class="type-badge">{{ p.project_type }}</span>
+          </div>
+          <span class="risk-badge" [class.risk-badge-high]="p.risk_level === 'HIGH'" [class.risk-badge-med]="p.risk_level === 'MEDIUM'" [class.risk-badge-low]="p.risk_level === 'LOW'">
+            {{ p.risk_level }} RISK
+          </span>
+        </div>
+
+        <h3 class="project-title">{{ p.name }}</h3>
+        <div class="project-location">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <span>{{ p.district }}, {{ p.state }}</span>
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-labels">
+            <span>Acquisition Progress</span>
+            <strong>{{ p.acquisition_progress }}%</strong>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="p.acquisition_progress" [class.fill-danger]="p.risk_level === 'HIGH'" [class.fill-warning]="p.risk_level === 'MEDIUM'" [class.fill-success]="p.risk_level === 'LOW'"></div>
+          </div>
+          <div class="stage-label">Current Stage: <strong>{{ p.current_stage }}</strong></div>
+        </div>
+
+        <div class="metrics-row">
+          <div class="metric-item">
+            <span class="metric-label">Predicted Delay</span>
+            <span class="metric-val text-danger font-bold">+{{ p.predicted_delay_days }} Days</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Risk Probability</span>
+            <span class="metric-val font-mono font-bold">{{ (p.risk_score * 100).toFixed(1) }}%</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Cost Exposure</span>
+            <span class="metric-val font-mono font-bold">₹{{ getCostImpactCr(p) }} Cr</span>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <a [routerLink]="['/projects', p.id]" class="btn btn-sm btn-outline">
+            Risk Factors
+          </a>
+          <a [routerLink]="['/shap']" [queryParams]="{ projectId: p.id }" class="btn btn-sm btn-outline">
+            AI SHAP
+          </a>
+          <a [routerLink]="['/what-if']" [queryParams]="{ projectId: p.id }" class="btn btn-sm btn-primary">
+            Simulate
+          </a>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-box card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        <p>No projects match your filter criteria.</p>
+        <button class="btn btn-outline btn-sm" (click)="resetFilters()">Clear Filters</button>
+      </div>
+    }
+  </div>
+</div>

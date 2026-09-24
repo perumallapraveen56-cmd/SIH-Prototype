@@ -1,0 +1,335 @@
+<div class="what-if-page">
+  <!-- Page Header & Project Context -->
+  <div class="page-header">
+    <div class="header-titles">
+      <h1 class="page-title">Recommendations & What-If Scenario Simulator</h1>
+      <p class="page-desc">Simulate policy interventions, fast-track approvals, and quantify projected delay & cost reduction in real-time</p>
+    </div>
+
+    <div class="project-selector-box">
+      <label>Selected Corridor:</label>
+      <select [ngModel]="selectedProjectId()" (ngModelChange)="onProjectChange($event)" class="project-select">
+        @for (p of allProjects(); track p.id) {
+          <option [value]="p.id">
+            {{ p.project_code }} - {{ p.name }}
+          </option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="state-card loading-state">
+      <div class="loader-spinner"></div>
+      <h3>Loading What-If Simulator & Model Parameters...</h3>
+      <p>Synchronizing project baseline and financial impact parameters from backend.</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (!isLoading() && errorMessage()) {
+    <div class="state-card error-state">
+      <h3>Simulation Error</h3>
+      <p>{{ errorMessage() }}</p>
+      <button class="retry-btn" (click)="loadAllData(selectedProjectId())">Retry Simulation</button>
+    </div>
+  }
+
+  <!-- Main Content -->
+  @if (!isLoading() && simulationResult(); as sim) {
+    <!-- WHAT-IF SIMULATOR CONTAINER (Requirement #14) -->
+    <div class="simulator-card">
+      <div class="sim-header">
+        <div class="sim-title-group">
+          <span class="sim-badge">Policy & Administrative Interventions</span>
+          <h2 class="sim-title">What-If Intervention Optimizer</h2>
+          <p class="sim-sub">Modify policy levers to calculate recalculated risk and schedule compression on backend ML models</p>
+        </div>
+
+        <div class="presets-row">
+          <span class="presets-label">Intervention Presets:</span>
+          <button type="button" class="preset-btn" (click)="applyPreset('targeted')">Fast-Track Compensation</button>
+          <button type="button" class="preset-btn" (click)="applyPreset('moderate')">Balanced Intervention</button>
+          <button type="button" class="preset-btn" (click)="applyPreset('aggressive')">Comprehensive Fast-Track</button>
+          <button type="button" class="preset-btn reset" (click)="resetSliders()">Reset Baseline</button>
+        </div>
+      </div>
+
+      <div class="sim-body-grid">
+        <!-- Left: Sliders / Intervention Controls -->
+        <div class="controls-panel">
+          <h3 class="panel-heading">Intervention Parameters</h3>
+
+          <!-- Slider 1: Compensation Delay -->
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">Compensation Disbursement Acceleration</span>
+              <span class="slider-val">{{ compDelayPct() }}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="5"
+              [ngModel]="compDelayPct()"
+              (ngModelChange)="compDelayPct.set($event)"
+              class="range-slider comp-slider"
+            />
+            <span class="slider-hint">Deploys special camp offices, DBT disbursement, and title verification teams.</span>
+          </div>
+
+          <!-- Slider 2: Legal Disputes -->
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">Legal Dispute ADR & Lok Adalat Resolution</span>
+              <span class="slider-val">{{ legalDisputesPct() }}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="5"
+              [ngModel]="legalDisputesPct()"
+              (ngModelChange)="legalDisputesPct.set($event)"
+              class="range-slider legal-slider"
+            />
+            <span class="slider-hint">Convenes special Lok Adalat benches and court registry deposit mechanism.</span>
+          </div>
+
+          <!-- Slider 3: Statutory Approvals -->
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">Statutory Forest / CRZ / Wildlife Clearances</span>
+              <span class="slider-val">{{ approvalsExpeditedPct() }}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="5"
+              [ngModel]="approvalsExpeditedPct()"
+              (ngModelChange)="approvalsExpeditedPct.set($event)"
+              class="range-slider approval-slider"
+            />
+            <span class="slider-hint">Accelerates Parivesh 2.0 portal clearances with State Apex review.</span>
+          </div>
+
+          <!-- Slider 4: R&R Progress -->
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">R&R Housing & Livelihood Scheme Acceleration</span>
+              <span class="slider-val">{{ rrProgressPct() }}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="5"
+              [ngModel]="rrProgressPct()"
+              (ngModelChange)="rrProgressPct.set($event)"
+              class="range-slider rr-slider"
+            />
+            <span class="slider-hint">Fast-tracks resettlement colony site construction and tenant grants.</span>
+          </div>
+
+          <!-- Slider 5: Documentation -->
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-name">Digital RoR & Survey Reconciliation</span>
+              <span class="slider-val">{{ docStreamlinePct() }}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="5"
+              [ngModel]="docStreamlinePct()"
+              (ngModelChange)="docStreamlinePct.set($event)"
+              class="range-slider doc-slider"
+            />
+            <span class="slider-hint">Integrates State digital cadastral maps and resolves inheritance mutations.</span>
+          </div>
+
+          <!-- RUN SIMULATION BUTTON (Requirement #14) -->
+          <button type="button" class="run-sim-btn" (click)="runSimulation()" [disabled]="isSimulating()">
+            @if (isSimulating()) {
+              <span class="sim-spinner"></span>
+              <span>Calculating on Backend...</span>
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <span>RUN SIMULATION</span>
+            }
+          </button>
+        </div>
+
+        <!-- Right: Current Situation vs Simulated Outcome -->
+        <div class="results-panel">
+          <h3 class="panel-heading">Simulation Results (Backend Recalculated)</h3>
+
+          <div class="comparison-cards-grid">
+            <!-- Current Baseline Card -->
+            <div class="comp-card baseline">
+              <span class="card-badge-top">CURRENT SITUATION</span>
+              <div class="stat-main">
+                <span class="stat-num">{{ sim.baseline_risk_score }}</span>
+                <span class="stat-denom">/ 100</span>
+              </div>
+              <span class="stat-tag risk-high">{{ sim.baseline_risk_level }} RISK</span>
+
+              <div class="stat-sub-row">
+                <div class="sub-item">
+                  <span class="s-label">Expected Delay</span>
+                  <span class="s-val">{{ sim.baseline_delay_days }} Days</span>
+                </div>
+                <div class="sub-item">
+                  <span class="s-label">Est. Financial Cost</span>
+                  <span class="s-val text-danger">₹ {{ sim.baseline_cost_impact_cr }} Cr</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Simulated Scenario Card -->
+            <div class="comp-card simulated">
+              <span class="card-badge-top simulated-badge">SIMULATED SCENARIO</span>
+              <div class="stat-main">
+                <span class="stat-num text-success">{{ sim.simulated_risk_score }}</span>
+                <span class="stat-denom">/ 100</span>
+              </div>
+              <span class="stat-tag" [ngClass]="'tag-' + sim.simulated_risk_level.toLowerCase()">
+                {{ sim.simulated_risk_level }} RISK
+              </span>
+
+              <div class="stat-sub-row">
+                <div class="sub-item">
+                  <span class="s-label">Simulated Delay</span>
+                  <span class="s-val text-success">{{ sim.simulated_delay_days }} Days</span>
+                </div>
+                <div class="sub-item">
+                  <span class="s-label">Simulated Cost</span>
+                  <span class="s-val text-success">₹ {{ sim.simulated_cost_impact_cr }} Cr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Calculated Impact Delta Highlights (Requirement #14) -->
+          <div class="savings-highlights-grid">
+            <div class="savings-box">
+              <span class="save-label">Risk Reduction</span>
+              <span class="save-num text-success">-{{ sim.risk_reduction_pct }}%</span>
+              <span class="save-sub">From {{ sim.baseline_risk_score }} to {{ sim.simulated_risk_score }}</span>
+            </div>
+
+            <div class="savings-box">
+              <span class="save-label">Delay Avoided</span>
+              <span class="save-num text-success">{{ sim.delay_reduction_days }} Days</span>
+              <span class="save-sub">Timeline acceleration</span>
+            </div>
+
+            <div class="savings-box">
+              <span class="save-label">Estimated Savings</span>
+              <span class="save-num text-cost-save">₹ {{ sim.cost_savings_cr }} Cr</span>
+              <span class="save-sub">Overrun prevention</span>
+            </div>
+          </div>
+
+          <!-- Drivers Addressed -->
+          <div class="drivers-box">
+            <span class="drivers-label">Intervention Impacts Incorporated:</span>
+            <ul class="drivers-list">
+              @for (d of sim.key_drivers_addressed; track d) {
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>{{ d }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINANCIAL IMPACT ANALYSIS SECTION (Requirement #15) -->
+    @if (financialImpact(); as fin) {
+      <div class="financial-card">
+        <div class="card-header">
+          <div class="title-wrap">
+            <h3 class="card-title">Project-Specific Financial Impact Scenarios</h3>
+            <span class="card-subtitle">
+              Calculated using project parameter: <strong>₹ {{ fin.daily_delay_cost_lakhs }} Lakhs/Day</strong> (Base Budget: ₹ {{ fin.base_budget_cr }} Cr)
+            </span>
+          </div>
+          <span class="calc-label">Configured in Database</span>
+        </div>
+
+        <div class="fin-scenarios-grid">
+          @for (s of fin.scenarios; track s.scenario_label) {
+            <div class="scenario-box" [ngClass]="'impact-' + s.impact_level.toLowerCase()">
+              <div class="scen-top">
+                <span class="scen-label">{{ s.scenario_label }}</span>
+                <span class="scen-impact-tag">{{ s.impact_level }}</span>
+              </div>
+              <div class="scen-delay">
+                <span class="days-count">{{ s.total_delay_days }}</span>
+                <span class="days-label">Total Days Delay</span>
+              </div>
+              <div class="scen-cost">
+                <span class="cost-heading">Estimated Additional Cost</span>
+                <span class="cost-figure">₹ {{ s.estimated_cost_cr }} Cr</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- STRATEGIC ACTIONABLE RECOMMENDATIONS (Requirement #13) -->
+    @if (recommendations(); as recData) {
+      <div class="recommendations-card">
+        <div class="card-header">
+          <div class="title-wrap">
+            <h3 class="card-title">Targeted Corrective Recommendations</h3>
+            <span class="card-subtitle">AI-guided interventions associated with top bottleneck risk factors</span>
+          </div>
+          <div class="rec-total-badge">
+            Potential Savings: <strong>₹ {{ recData.total_potential_savings_cr }} Cr</strong> • <strong>{{ recData.total_potential_delay_reduction_days }} Days Saved</strong>
+          </div>
+        </div>
+
+        <div class="recommendations-list">
+          @for (r of recData.recommendations; track r.id) {
+            <div class="rec-item-card">
+              <div class="rec-item-header">
+                <div class="rec-category-row">
+                  <span class="rec-category-tag">{{ r.category }}</span>
+                  <span class="rec-priority-badge" [class.p-crit]="r.priority === 'CRITICAL'" [class.p-high]="r.priority === 'HIGH'">
+                    {{ r.priority }} PRIORITY
+                  </span>
+                </div>
+                <div class="rec-gains">
+                  <span class="gain-delay">-{{ r.potential_delay_reduction_days }} Days</span>
+                  <span class="gain-cost">Save ₹ {{ r.potential_cost_savings_cr }} Cr</span>
+                </div>
+              </div>
+
+              <h4 class="rec-title">{{ r.title }}</h4>
+              <p class="rec-desc">{{ r.description }}</p>
+
+              @if (r.action_steps && r.action_steps.length > 0) {
+                <div class="rec-action-steps">
+                  <span class="steps-heading">Standard Operating Procedure Action Steps:</span>
+                  <ol class="steps-list">
+                    @for (step of r.action_steps; track step) {
+                      <li>{{ step }}</li>
+                    }
+                  </ol>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+</div>

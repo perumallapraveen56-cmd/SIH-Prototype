@@ -1,0 +1,295 @@
+<div class="land-records-page">
+  <div class="page-header">
+    <div class="header-left">
+      <span class="sub-heading">DIGITAL REVENUE CADASTRE • BHULEKH / BHOOMI FEDERATED INVENTORY</span>
+      <h1>Cadastral Land Parcel Records & Title Status</h1>
+      <p class="description">Live monitoring of survey khasras, statutory acquisition stages under RFCTLARR Act 2013, and litigation bottlenecks.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="loadData()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        Sync Records
+      </button>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <!-- KPI Metrics Ribbon -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon-box bg-blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-title">Monitored Parcels</span>
+        <span class="kpi-value">{{ totalParcelsCount() }}</span>
+        <span class="kpi-sub">Across 12 Major Projects</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-box bg-red">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-title">In Litigation / Dispute</span>
+        <span class="kpi-value text-danger">{{ disputedParcelsCount() }}</span>
+        <span class="kpi-sub">Court writs or boundary claims</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-box bg-green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-title">Possession Ready / Clear</span>
+        <span class="kpi-value text-success">{{ clearParcelsCount() }}</span>
+        <span class="kpi-sub">Ready for contractor handover</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-box bg-purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-title">Total Monitored Area</span>
+        <span class="kpi-value">{{ totalAreaHa() }} Ha</span>
+        <span class="kpi-sub">Cadastral survey coverage</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter & Search Controls -->
+  <div class="card filter-card">
+    <div class="filter-bar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input
+          type="text"
+          placeholder="Search by Khasra No, Village, Khatedar Owner, or Parcel Code..."
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+        />
+      </div>
+
+      <div class="filter-controls">
+        <select class="form-select" [ngModel]="selectedProjectId()" (ngModelChange)="selectedProjectId.set($event === 'null' ? null : +$event)">
+          <option value="null">All Projects</option>
+          @for (p of projects(); track p.id) {
+            <option [value]="p.id">{{ p.project_code }} — {{ p.name }}</option>
+          }
+        </select>
+
+        <select class="form-select" [ngModel]="selectedStage()" (ngModelChange)="selectedStage.set($event)">
+          @for (st of stagesList; track st) {
+            <option [value]="st">{{ st }}</option>
+          }
+        </select>
+
+        <select class="form-select" [ngModel]="selectedDispute()" (ngModelChange)="selectedDispute.set($event)">
+          <option value="ALL">All Dispute Statuses</option>
+          <option value="DISPUTED">In Litigation / Dispute Only</option>
+          <option value="CLEAR">Clear / No Dispute Only</option>
+        </select>
+
+        <button class="btn btn-outline" (click)="resetFilters()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cadastral Parcels Table -->
+  <div class="card table-card">
+    <div class="card-header">
+      <div class="card-title-box">
+        <span class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+        </span>
+        <div>
+          <h3>Cadastral Land Parcels Inventory ({{ filteredParcels().length }} records)</h3>
+          <p>Detailed cadastral survey records with RFCTLARR acquisition milestones</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body no-padding">
+      @if (isLoading()) {
+        <div class="loading-state">
+          <span class="spinner"></span>
+          <span>Loading cadastral parcel database...</span>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="parcels-table">
+            <thead>
+              <tr>
+                <th>Parcel ID / Khasra</th>
+                <th>Project & Location</th>
+                <th>Khatedar / Landowner</th>
+                <th>Category & Area</th>
+                <th>Statutory Stage</th>
+                <th>Dispute Status</th>
+                <th>Compensation</th>
+                <th>Risk Delay</th>
+                <th class="text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of filteredParcels(); track p.parcel_id) {
+                <tr>
+                  <td>
+                    <strong class="font-mono text-primary">{{ p.parcel_id }}</strong>
+                    <div class="text-muted small">Khasra No: {{ p.khasra_no }}</div>
+                  </td>
+                  <td>
+                    <div class="font-bold">{{ p.project_name }}</div>
+                    <div class="text-muted small">{{ p.village }}, {{ p.district }}, {{ p.state }}</div>
+                  </td>
+                  <td>
+                    <div>{{ p.khatedar_owner }}</div>
+                  </td>
+                  <td>
+                    <div>{{ p.land_category }}</div>
+                    <div class="text-muted small font-bold">{{ p.area_ha }} Ha</div>
+                  </td>
+                  <td>
+                    <span class="stage-tag">{{ p.acquisition_stage }}</span>
+                  </td>
+                  <td>
+                    @if (p.dispute_status.includes('Clear')) {
+                      <span class="badge badge-success">{{ p.dispute_status }}</span>
+                    } @else {
+                      <span class="badge badge-danger">{{ p.dispute_status }}</span>
+                    }
+                  </td>
+                  <td>
+                    <div class="font-mono font-bold">₹{{ p.compensation_amount_lakhs }} L</div>
+                    <div class="text-muted small">{{ p.compensation_status }}</div>
+                  </td>
+                  <td>
+                    <span class="risk-pill" [class.risk-high]="p.risk_level === 'HIGH'" [class.risk-medium]="p.risk_level === 'MEDIUM'" [class.risk-low]="p.risk_level === 'LOW'">
+                      +{{ p.predicted_delay_days }}d ({{ p.risk_level }})
+                    </span>
+                  </td>
+                  <td class="text-right">
+                    <button class="btn btn-sm btn-outline" (click)="openParcelDetails(p)">
+                      Inspect
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="9" class="empty-state">
+                    No cadastral parcels match the selected search criteria.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Parcel Detail Drawer Modal -->
+  @if (selectedParcel()) {
+    <div class="modal-backdrop" (click)="closeParcelDetails()">
+      <div class="modal-drawer" (click)="$event.stopPropagation()">
+        <div class="drawer-header">
+          <div>
+            <span class="badge badge-info">{{ selectedParcel()!.parcel_id }}</span>
+            <h2>Khasra No. {{ selectedParcel()!.khasra_no }}</h2>
+            <span class="sub-text">{{ selectedParcel()!.village }} • {{ selectedParcel()!.district }}, {{ selectedParcel()!.state }}</span>
+          </div>
+          <button class="btn-close" (click)="closeParcelDetails()">✕</button>
+        </div>
+
+        <div class="drawer-body">
+          <div class="info-section">
+            <h4>Parent Infrastructure Project</h4>
+            <div class="info-item">
+              <span class="label">Project Code:</span>
+              <span class="value font-mono">{{ selectedParcel()!.project_code }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Project Name:</span>
+              <span class="value font-bold">{{ selectedParcel()!.project_name }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Jurisdiction:</span>
+              <span class="value">{{ selectedParcel()!.district }}, {{ selectedParcel()!.state }}</span>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <h4>Landholding & Ownership Details</h4>
+            <div class="info-item">
+              <span class="label">Recorded Khatedar:</span>
+              <span class="value font-bold">{{ selectedParcel()!.khatedar_owner }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Land Category:</span>
+              <span class="value">{{ selectedParcel()!.land_category }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Survey Area:</span>
+              <span class="value font-bold">{{ selectedParcel()!.area_ha }} Hectares (approx {{ (selectedParcel()!.area_ha * 2.471).toFixed(2) }} Acres)</span>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <h4>Statutory Acquisition Progress</h4>
+            <div class="info-item">
+              <span class="label">Current RFCTLARR Stage:</span>
+              <span class="value highlight">{{ selectedParcel()!.acquisition_stage }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Litigation / Dispute:</span>
+              <span class="value">
+                <span class="badge" [class.badge-danger]="!selectedParcel()!.dispute_status.includes('Clear')" [class.badge-success]="selectedParcel()!.dispute_status.includes('Clear')">
+                  {{ selectedParcel()!.dispute_status }}
+                </span>
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="label">Compensation Status:</span>
+              <span class="value">{{ selectedParcel()!.compensation_status }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Estimated Award:</span>
+              <span class="value font-bold font-mono">₹{{ selectedParcel()!.compensation_amount_lakhs }} Lakhs</span>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <h4>AI Delay Risk Assessment</h4>
+            <div class="risk-box" [class.risk-box-high]="selectedParcel()!.risk_level === 'HIGH'">
+              <div class="risk-box-title">Predicted Delay Contribution: +{{ selectedParcel()!.predicted_delay_days }} Days</div>
+              <div class="risk-box-desc">
+                @if (selectedParcel()!.dispute_status.includes('Court') || selectedParcel()!.dispute_status.includes('Writ')) {
+                  Pending judicial dispute halts possession handover under Section 38. Recommended action: Direct special standing counsel to petition for vacating stay and escrow deposit under Section 77.
+                } @else {
+                  Normal procedural processing. Regular weekly revenue officer monitoring recommended to ensure timely Section 19 declaration.
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="drawer-footer">
+          <a [routerLink]="['/projects', selectedParcel()!.project_id]" (click)="closeParcelDetails()" class="btn btn-primary">
+            View Project Details
+          </a>
+          <button class="btn btn-secondary" (click)="closeParcelDetails()">Close</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

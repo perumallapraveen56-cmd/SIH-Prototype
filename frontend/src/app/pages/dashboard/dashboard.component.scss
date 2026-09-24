@@ -1,0 +1,670 @@
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+
+  .page-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 0.3rem;
+  }
+
+  .page-desc {
+    font-size: 0.88rem;
+    color: #64748b;
+    margin: 0;
+  }
+
+  .header-quick-actions {
+    display: flex;
+    gap: 0.75rem;
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.55rem 1rem;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+
+      svg {
+        width: 17px;
+        height: 17px;
+      }
+
+      &.primary {
+        background: #4f46e5;
+        color: #ffffff;
+        border: 1px solid #4f46e5;
+        box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+
+        &:hover {
+          background: #4338ca;
+        }
+      }
+
+      &.secondary {
+        background: #ffffff;
+        color: #334155;
+        border: 1px solid #cbd5e1;
+
+        &:hover {
+          background: #f8fafc;
+          border-color: #94a3b8;
+        }
+      }
+    }
+  }
+}
+
+// KPI Grid
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1.25rem;
+}
+
+.kpi-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  &.high-risk-card {
+    border-left: 4px solid #dc2626;
+  }
+
+  .kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .kpi-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-icon-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      &.blue { background: #eff6ff; color: #2563eb; }
+      &.purple { background: #f5f3ff; color: #7c3aed; }
+      &.red { background: #fef2f2; color: #dc2626; }
+      &.amber { background: #fffbeb; color: #d97706; }
+      &.green { background: #f0fdf4; color: #16a34a; }
+    }
+  }
+
+  .kpi-body {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+
+    .kpi-value {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
+
+      &.text-red {
+        color: #dc2626;
+      }
+    }
+
+    .kpi-unit {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .kpi-trend {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+
+      &.positive { background: #f0fdf4; color: #16a34a; }
+      &.negative { background: #fef2f2; color: #dc2626; }
+      &.neutral { background: #f8fafc; color: #64748b; }
+    }
+
+    .mini-progress-track {
+      flex: 1;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+
+      .mini-progress-fill {
+        height: 100%;
+        background: #10b981;
+        border-radius: 3px;
+      }
+    }
+  }
+
+  .kpi-footer {
+    font-size: 0.75rem;
+    color: #94a3b8;
+  }
+}
+
+// Middle Section
+.dashboard-analytics-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 1.25rem;
+
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-card, .gis-preview-card, .table-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.card-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  .card-subtitle {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+
+  .badge-source {
+    font-size: 0.7rem;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .link-btn {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #4f46e5;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Risk Overview Chart Styles
+.chart-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.risk-bar-container {
+  height: 38px;
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  .risk-bar-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition: width 0.4s ease;
+
+    &.segment-high {
+      background: #dc2626;
+    }
+
+    &.segment-medium {
+      background: #f59e0b;
+    }
+
+    &.segment-low {
+      background: #10b981;
+    }
+  }
+}
+
+.risk-legend-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+
+  .legend-card {
+    border-radius: 8px;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    position: relative;
+
+    .legend-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+    }
+
+    .legend-title {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .legend-count {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .legend-pct {
+      font-size: 0.7rem;
+      color: #64748b;
+    }
+
+    .legend-impact {
+      font-size: 0.68rem;
+      color: #94a3b8;
+      line-height: 1.3;
+      margin-top: 0.2rem;
+    }
+
+    &.high {
+      background: #fef2f2;
+      border-color: #fecaca;
+      .legend-indicator { background: #dc2626; }
+      .legend-title { color: #dc2626; }
+    }
+
+    &.medium {
+      background: #fffbeb;
+      border-color: #fde68a;
+      .legend-indicator { background: #f59e0b; }
+      .legend-title { color: #d97706; }
+    }
+
+    &.low {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      .legend-indicator { background: #10b981; }
+      .legend-title { color: #16a34a; }
+    }
+  }
+}
+
+// GIS Preview Card
+.gis-quick-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  .gis-summary-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.45rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+
+      &.red { background: #fef2f2; color: #dc2626; .dot { background: #dc2626; } }
+      &.amber { background: #fffbeb; color: #d97706; .dot { background: #f59e0b; } }
+      &.green { background: #f0fdf4; color: #16a34a; .dot { background: #10b981; } }
+    }
+  }
+
+  .gis-action-callout {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+
+    .callout-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: #4f46e5;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg { width: 18px; height: 18px; }
+    }
+
+    .callout-text {
+      strong { font-size: 0.85rem; color: #1e293b; }
+      p { font-size: 0.76rem; color: #64748b; margin: 0.2rem 0 0; line-height: 1.4; }
+    }
+
+    .callout-link-btn {
+      align-self: flex-start;
+      margin-top: 0.2rem;
+      background: #4f46e5;
+      color: #ffffff;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-decoration: none;
+
+      &:hover {
+        background: #4338ca;
+      }
+    }
+  }
+}
+
+// Table Card
+.table-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .table-badge {
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+  }
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.projects-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+
+  thead tr {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+
+    th {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: #f8fafc;
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      vertical-align: middle;
+    }
+  }
+}
+
+.code-tag {
+  font-family: monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #4f46e5;
+  background: #eef2ff;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+
+  .project-title {
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  .project-type-tag {
+    font-size: 0.72rem;
+    color: #64748b;
+  }
+}
+
+.loc-cell {
+  display: flex;
+  flex-direction: column;
+
+  .district-name { font-weight: 600; color: #1e293b; }
+  .state-name { font-size: 0.72rem; color: #64748b; }
+}
+
+.progress-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+
+  .bar-track {
+    width: 70px;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+
+    .bar-fill {
+      height: 100%;
+      background: #4f46e5;
+      border-radius: 3px;
+    }
+  }
+
+  .progress-num {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #334155;
+  }
+}
+
+// Consistent Risk Badges Across App
+.risk-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+
+  &.risk-high {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+  }
+
+  &.risk-medium {
+    background: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fde68a;
+  }
+
+  &.risk-low {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+  }
+}
+
+.delay-val {
+  font-weight: 700;
+  color: #334155;
+
+  &.high-delay {
+    color: #dc2626;
+  }
+}
+
+.cost-val {
+  font-weight: 600;
+  color: #475569;
+}
+
+.view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.7rem;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease;
+
+  svg { width: 14px; height: 14px; }
+
+  &:hover {
+    background: #4f46e5;
+    color: #ffffff;
+    border-color: #4f46e5;
+  }
+}
+
+.text-right {
+  text-align: right;
+}
+
+// Loading & Error States
+.state-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+
+  h3 { margin: 0; font-size: 1.15rem; color: #0f172a; }
+  p { margin: 0; font-size: 0.85rem; color: #64748b; max-width: 480px; }
+}
+
+.loader-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #4f46e5;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.error-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  svg { width: 28px; height: 28px; }
+}
+
+.retry-btn {
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

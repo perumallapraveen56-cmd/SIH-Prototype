@@ -1,0 +1,230 @@
+<div class="settings-page">
+  <div class="page-header">
+    <div class="header-left">
+      <span class="sub-heading">SYSTEM ADMINISTRATION & OPERATIONAL PARAMETERS</span>
+      <h1>System Preferences & AI Settings</h1>
+      <p class="description">Configure alert audio chimes, model inference thresholds, and user security profiles.</p>
+    </div>
+  </div>
+
+  @if (spikeSuccess()) {
+    <div class="alert alert-success">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      <span>{{ spikeSuccess() }}</span>
+    </div>
+  }
+
+  <div class="settings-grid">
+    <!-- User Profile Card -->
+    <div class="card profile-card">
+      <div class="card-header">
+        <div class="card-title-box">
+          <span class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </span>
+          <div>
+            <h3>Official User Identity</h3>
+            <p>Authenticated Session & Government Clearance</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="user-profile-badge">
+          <div class="avatar-large">
+            {{ authService.currentUser()?.full_name?.charAt(0) || 'U' }}
+          </div>
+          <div class="profile-details">
+            <h4 class="profile-name">{{ authService.currentUser()?.full_name || 'Revenue Officer' }}</h4>
+            <span class="profile-email">{{ authService.currentUser()?.email || 'officer@gov.in' }}</span>
+            <div class="role-tags">
+              <span class="badge badge-primary">{{ authService.currentUser()?.role || 'OFFICER' }}</span>
+              <span class="badge badge-info">{{ authService.currentUser()?.department || 'Land Acquisition Department' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-meta-list">
+          <div class="meta-row">
+            <span class="meta-label">Employee ID / SSO UID:</span>
+            <span class="meta-val font-mono">GOV-REV-2026-{{ authService.currentUser()?.id || 1 }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Access Level:</span>
+            <span class="meta-val">Statutory Approval & Intervention Rights</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Session Token:</span>
+            <span class="meta-val font-mono text-muted">Active (Bearer JWT)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert & Sound Notification Safety Card -->
+    <div class="card notify-card">
+      <div class="card-header">
+        <div class="card-title-box">
+          <span class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          </span>
+          <div>
+            <h3>Alert & Notification Safety Policy</h3>
+            <p>Web Audio API Synthesizer & Polling Behavior</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="toggle-group">
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <span class="toggle-title">Web Audio Chime for High-Risk Alerts</span>
+              <span class="toggle-desc">Plays a pleasant two-tone warning chime once per new high-risk delay spike. Honors browser autoplay policies.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" [checked]="soundEnabled()" (change)="onToggleSound()">
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <span class="toggle-title">Real-Time Toast Notifications</span>
+              <span class="toggle-desc">Display floating slide-in warning toasts on the top right when new alerts arrive.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" [checked]="toastEnabled()" (change)="onToggleToast()">
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="sound-test-box">
+          <div class="sound-test-info">
+            <strong>Verify Audio Synthesizer</strong>
+            <p>Trigger the dual-frequency (880Hz / 659Hz) warning alert sound safely.</p>
+          </div>
+          <button class="btn btn-outline" [disabled]="isTestingSound()" (click)="testChime()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            Play Test Chime
+          </button>
+        </div>
+
+        <div class="demo-trigger-box">
+          <div class="demo-trigger-info">
+            <strong>Live Demo Delay Spike Simulator</strong>
+            <p>Generate a dynamic high-risk alert with automated delay recalculation and sound chime.</p>
+          </div>
+          <button class="btn btn-danger" [disabled]="isTriggeringSpike()" (click)="triggerLiveSpike()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            Trigger Delay Spike
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Model Metadata Card -->
+    <div class="card model-card span-2">
+      <div class="card-header">
+        <div class="card-title-box">
+          <span class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path><path d="M9.5 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"></path></svg>
+          </span>
+          <div>
+            <h3>Predictive Machine Learning & Explainability Engine</h3>
+            <p>Trained Model Benchmarks & SHAP Feature Contribution Architecture</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="model-meta-grid">
+          <div class="meta-box">
+            <span class="meta-box-label">Production ML Pipeline</span>
+            <span class="meta-box-val font-bold">{{ modelName }}</span>
+            <span class="meta-box-sub">Trained on 2,500 balanced Indian acquisition cases</span>
+          </div>
+
+          <div class="meta-box">
+            <span class="meta-box-label">Classification Accuracy / F1</span>
+            <span class="meta-box-val text-success font-bold">{{ modelF1Score }}</span>
+            <span class="meta-box-sub">Detects High Delay vs On-Schedule</span>
+          </div>
+
+          <div class="meta-box">
+            <span class="meta-box-label">Regression R² Coefficient</span>
+            <span class="meta-box-val text-success font-bold">{{ modelR2Score }}</span>
+            <span class="meta-box-sub">Predicts exact delay duration in days</span>
+          </div>
+
+          <div class="meta-box">
+            <span class="meta-box-label">Explainability Framework</span>
+            <span class="meta-box-val font-bold">{{ shapFramework }}</span>
+            <span class="meta-box-sub">Pure Python serialization (TreeSHAP Waterfall)</span>
+          </div>
+        </div>
+
+        <div class="threshold-summary">
+          <h4>Statutory Risk Level Classification Boundaries</h4>
+          <div class="risk-bands">
+            <div class="band band-high">
+              <span class="band-tag">HIGH RISK</span>
+              <span class="band-range">&ge; 60 Days Predicted Delay OR Risk Probability &gt; 0.65</span>
+              <span class="band-action">Red Alert • Daily delay cost exposure triggered</span>
+            </div>
+            <div class="band band-med">
+              <span class="band-tag">MEDIUM RISK</span>
+              <span class="band-range">20 to 59 Days Delay</span>
+              <span class="band-action">Amber Alert • Weekly SLAO monitoring recommended</span>
+            </div>
+            <div class="band band-low">
+              <span class="band-tag">LOW RISK</span>
+              <span class="band-range">&lt; 20 Days Delay</span>
+              <span class="band-action">Green Status • Routine quarterly review</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connectivity & Diagnostics Card -->
+    <div class="card diagnostics-card span-2">
+      <div class="card-header">
+        <div class="card-title-box">
+          <span class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          </span>
+          <div>
+            <h3>System Health & Backend Diagnostics</h3>
+            <p>Database Engine, REST API Gateway & Polling Intervals</p>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-outline" [disabled]="isCheckingHealth()" (click)="checkSystemHealth()">
+          Check Health
+        </button>
+      </div>
+
+      <div class="card-body">
+        <div class="diag-list">
+          <div class="diag-item">
+            <span class="diag-label">API Gateway:</span>
+            <span class="diag-val font-mono">http://localhost:8000/api</span>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">Service Health Status:</span>
+            <span class="diag-val text-success font-bold">{{ healthStatus() }}</span>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">Database Storage Engine:</span>
+            <span class="diag-val">SQLAlchemy Engine (SQLite fallback: land_acquisition.db)</span>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">Client Alert Polling Frequency:</span>
+            <span class="diag-val">Every 15 Seconds (RxJS interval poller)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

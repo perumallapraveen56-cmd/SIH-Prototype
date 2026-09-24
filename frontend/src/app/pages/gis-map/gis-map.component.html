@@ -1,0 +1,175 @@
+<div class="gis-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-titles">
+      <h1 class="page-title">GIS Land Acquisition Risk Map</h1>
+      <p class="page-desc">Geospatial corridor monitoring driven by backend coordinates, survey parcels, and predictive risk indices</p>
+    </div>
+
+    <!-- Live Risk Color Legend (Requirement #9) -->
+    <div class="map-legend">
+      <div class="legend-chip high">
+        <span class="legend-dot"></span>
+        <span>High Risk (Red)</span>
+      </div>
+      <div class="legend-chip medium">
+        <span class="legend-dot"></span>
+        <span>Medium Risk (Amber)</span>
+      </div>
+      <div class="legend-chip low">
+        <span class="legend-dot"></span>
+        <span>Low Risk (Green)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Toolbar (Requirement #9) -->
+  <div class="filters-card">
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label>State</label>
+        <select [ngModel]="selectedState()" (ngModelChange)="selectedState.set($event); onFilterChange()">
+          <option value="">All States</option>
+          @for (s of filterOptions().states; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>District</label>
+        <select [ngModel]="selectedDistrict()" (ngModelChange)="selectedDistrict.set($event); onFilterChange()">
+          <option value="">All Districts</option>
+          @for (d of filterOptions().districts; track d) {
+            <option [value]="d">{{ d }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Project Type</label>
+        <select [ngModel]="selectedType()" (ngModelChange)="selectedType.set($event); onFilterChange()">
+          <option value="">All Categories</option>
+          @for (t of filterOptions().project_types; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Risk Level</label>
+        <select [ngModel]="selectedRisk()" (ngModelChange)="selectedRisk.set($event); onFilterChange()">
+          <option value="">All Risk Levels</option>
+          <option value="HIGH">High Risk</option>
+          <option value="MEDIUM">Medium Risk</option>
+          <option value="LOW">Low Risk</option>
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button type="button" class="reset-filter-btn" (click)="resetFilters()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+          <span>Reset Filters</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Layout: Interactive Map Canvas + Details Side Panel -->
+  <div class="gis-layout">
+    <!-- Map Container -->
+    <div class="map-wrapper">
+      <div #mapContainer class="leaflet-map-canvas"></div>
+
+      @if (isLoading()) {
+        <div class="map-loading-overlay">
+          <div class="spinner"></div>
+          <span>Synchronizing Geospatial Coordinates...</span>
+        </div>
+      }
+    </div>
+
+    <!-- Selected Project Inspector Panel -->
+    <div class="project-panel">
+      @if (selectedMarker(); as project) {
+        <div class="panel-header">
+          <div class="panel-code-row">
+            <span class="panel-code">{{ project.project_code }}</span>
+            <span class="panel-risk-tag" [ngClass]="'tag-' + project.risk_level.toLowerCase()">
+              {{ project.risk_level }} RISK
+            </span>
+          </div>
+          <h3 class="panel-name">{{ project.name }}</h3>
+          <span class="panel-type">{{ project.project_type }}</span>
+        </div>
+
+        <div class="panel-metrics-grid">
+          <div class="panel-metric-box">
+            <span class="metric-label">Risk Score</span>
+            <span class="metric-value" [class.text-danger]="project.risk_level === 'HIGH'">
+              {{ project.risk_score }} / 100
+            </span>
+          </div>
+
+          <div class="panel-metric-box">
+            <span class="metric-label">Predicted Delay</span>
+            <span class="metric-value">
+              +{{ project.predicted_delay_days }} Days
+            </span>
+          </div>
+
+          <div class="panel-metric-box">
+            <span class="metric-label">Acquisition Progress</span>
+            <span class="metric-value">{{ project.acquisition_progress }}%</span>
+            <div class="mini-bar">
+              <div class="mini-fill" [style.width.%]="project.acquisition_progress"></div>
+            </div>
+          </div>
+
+          <div class="panel-metric-box">
+            <span class="metric-label">Location</span>
+            <span class="metric-loc">{{ project.district }}, {{ project.state }}</span>
+          </div>
+        </div>
+
+        <div class="panel-coordinates">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          <span>Coordinates: {{ project.latitude }}° N, {{ project.longitude }}° E</span>
+        </div>
+
+        <div class="panel-actions">
+          <a [routerLink]="['/projects', project.id]" class="view-project-btn">
+            <span>View Full Project Risk Details</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+        </div>
+      } @else {
+        <div class="panel-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+          <h4>Select a Map Pin</h4>
+          <p>Click any project marker on the map to inspect live delay projections and risk drivers.</p>
+        </div>
+      }
+
+      <!-- Quick List of Visible Markers -->
+      <div class="marker-list-section">
+        <h4 class="list-title">Mapped Projects ({{ markers().length }})</h4>
+        <div class="marker-list-scroll">
+          @for (m of markers(); track m.id) {
+            <div
+              class="marker-list-item"
+              [class.active]="selectedMarker()?.id === m.id"
+              (click)="selectMarkerFromList(m)"
+            >
+              <span class="status-indicator" [ngClass]="'ind-' + m.risk_level.toLowerCase()"></span>
+              <div class="item-text">
+                <span class="item-title">{{ m.name }}</span>
+                <span class="item-sub">{{ m.district }} • +{{ m.predicted_delay_days }}d delay</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

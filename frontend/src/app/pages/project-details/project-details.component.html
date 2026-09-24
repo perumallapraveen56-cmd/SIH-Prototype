@@ -1,0 +1,242 @@
+<div class="project-details-page">
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="state-card loading-state">
+      <div class="loader-spinner"></div>
+      <h3>Loading Project Risk Details...</h3>
+      <p>Retrieving statutory milestones, risk indices, and financial parameters from backend.</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (!isLoading() && errorMessage()) {
+    <div class="state-card error-state">
+      <h3>Project Record Not Available</h3>
+      <p>{{ errorMessage() }}</p>
+      <a routerLink="/projects" class="back-link-btn">&larr; Back to Projects Directory</a>
+    </div>
+  }
+
+  <!-- Main Details Content -->
+  @if (!isLoading() && project(); as p) {
+    <!-- Breadcrumb & Header -->
+    <div class="page-header">
+      <div class="header-breadcrumb">
+        <a routerLink="/dashboard">Dashboard</a>
+        <span>/</span>
+        <a routerLink="/projects">Projects</a>
+        <span>/</span>
+        <span class="curr">{{ p.project_code }}</span>
+      </div>
+
+      <div class="header-main-row">
+        <div class="title-group">
+          <div class="code-badge-row">
+            <span class="project-code-tag">{{ p.project_code }}</span>
+            <span class="status-pill" [class.status-risk]="p.risk_prediction?.risk_level === 'HIGH'">
+              {{ p.status }}
+            </span>
+          </div>
+          <h1 class="project-title">{{ p.name }}</h1>
+          <p class="project-subtitle">{{ p.district }}, {{ p.state }} • {{ p.project_type }}</p>
+        </div>
+
+        <div class="header-actions">
+          <button class="action-btn pdf-btn" (click)="downloadPdfReport()" [disabled]="isDownloadingPdf()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span>{{ isDownloadingPdf() ? 'Generating PDF...' : 'Export Project PDF' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Key Metrics Cards (Screen 4 of Reference Workflow) -->
+    <div class="top-metrics-grid">
+      <!-- 1. Risk Score -->
+      <div class="metric-card" [class.border-high]="p.risk_prediction?.risk_level === 'HIGH'">
+        <span class="metric-title">Risk Score</span>
+        <div class="metric-val-row">
+          <span class="metric-huge" [class.text-danger]="p.risk_prediction?.risk_level === 'HIGH'">
+            {{ p.risk_prediction?.risk_score }}
+          </span>
+          <span class="metric-denom">/ 100</span>
+        </div>
+        <span class="metric-badge" [ngClass]="getRiskSeverityClass(p.risk_prediction?.risk_level || 'LOW')">
+          {{ p.risk_prediction?.risk_level }} RISK
+        </span>
+      </div>
+
+      <!-- 2. Predicted Delay -->
+      <div class="metric-card">
+        <span class="metric-title">Predicted Delay</span>
+        <div class="metric-val-row">
+          <span class="metric-huge" [class.text-danger]="(p.risk_prediction?.predicted_delay_days || 0) > 150">
+            +{{ p.risk_prediction?.predicted_delay_days }}
+          </span>
+          <span class="metric-denom">Days</span>
+        </div>
+        <span class="metric-sub-note">CatBoost Delay Forecaster</span>
+      </div>
+
+      <!-- 3. Acquisition Progress -->
+      <div class="metric-card">
+        <span class="metric-title">Acquisition Progress</span>
+        <div class="metric-val-row">
+          <span class="metric-huge">{{ p.acquisition_progress }}%</span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-fill" [style.width.%]="p.acquisition_progress"></div>
+        </div>
+        <span class="metric-sub-note">{{ p.acquired_area_ha }} ha of {{ p.total_area_ha }} ha acquired</span>
+      </div>
+
+      <!-- 4. Affected Parcels & Families -->
+      <div class="metric-card">
+        <span class="metric-title">Affected Parcels & Families</span>
+        <div class="metric-val-row">
+          <span class="metric-huge">{{ p.total_parcels }}</span>
+          <span class="metric-denom">Parcels</span>
+        </div>
+        <span class="metric-sub-note">{{ p.affected_families }} Families eligible for R&R</span>
+      </div>
+
+      <!-- 5. Estimated Cost Impact (Project-specific!) -->
+      <div class="metric-card">
+        <span class="metric-title">Estimated Cost Impact</span>
+        <div class="metric-val-row">
+          <span class="metric-huge text-cost">₹ {{ p.estimated_cost_impact_cr }}</span>
+          <span class="metric-denom">Crores</span>
+        </div>
+        <span class="metric-sub-note">At ₹ {{ p.daily_delay_cost_lakhs }} L/day project rate</span>
+      </div>
+    </div>
+
+    <!-- Navigation Hub Banner: Connects directly to SHAP & What-if (Requirement #11 & #13) -->
+    <div class="workflow-banner">
+      <div class="banner-content">
+        <div class="banner-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path><path d="M9.5 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"></path></svg>
+        </div>
+        <div class="banner-text">
+          <strong>AI Explainability & Predictive Scenario Simulator Available</strong>
+          <p>Inspect exact TreeSHAP factor attributions driving this project's delay score, or run interactive What-If policy simulations.</p>
+        </div>
+      </div>
+      <div class="banner-buttons">
+        <button class="banner-nav-btn shap-btn" (click)="navigateToShap()">
+          <span>AI Explainability (SHAP)</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+        <button class="banner-nav-btn whatif-btn" (click)="navigateToWhatIf()">
+          <span>Recommendations & What-If</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Two-column Detailed Sections -->
+    <div class="details-grid">
+      <!-- Left Column: Project Information -->
+      <div class="section-card">
+        <div class="card-header">
+          <h3 class="card-title">Project Metadata & Statutory Status</h3>
+          <span class="card-badge">RFCTLARR 2013</span>
+        </div>
+
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">Project ID</span>
+            <span class="info-value font-mono">{{ p.project_code }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Project Name</span>
+            <span class="info-value">{{ p.name }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">District & State</span>
+            <span class="info-value">{{ p.district }}, {{ p.state }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Project Type</span>
+            <span class="info-value">{{ p.project_type }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Preliminary Notification Date</span>
+            <span class="info-value">{{ p.notification_date }} (Section 11)</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Expected Completion Date</span>
+            <span class="info-value">{{ p.expected_completion }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Current Statutory Stage</span>
+            <span class="info-value highlight-stage">{{ p.current_stage }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Base Project Budget</span>
+            <span class="info-value">₹ {{ p.base_budget_cr }} Crores</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Daily Delay Cost Parameter</span>
+            <span class="info-value font-bold">₹ {{ p.daily_delay_cost_lakhs }} Lakhs / Day</span>
+          </div>
+
+          <div class="info-item full-desc">
+            <span class="info-label">Project Scope & Scope Overview</span>
+            <p class="info-desc">{{ p.description }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Top Risk Factors (Requirement #10) -->
+      <div class="section-card">
+        <div class="card-header">
+          <div class="header-titles">
+            <h3 class="card-title">Top Risk Factors</h3>
+            <span class="card-subtitle">Empirical delay drivers identified by ML feature extraction</span>
+          </div>
+          <span class="risk-count-badge">{{ p.top_risk_factors.length }} Factors Analyzed</span>
+        </div>
+
+        <div class="risk-factors-list">
+          @for (f of p.top_risk_factors; track f.factor_name) {
+            <div class="factor-row">
+              <div class="factor-top">
+                <span class="factor-name">{{ f.factor_name }}</span>
+                <div class="factor-badges">
+                  <span class="contrib-pct">+{{ f.contribution_pct }}%</span>
+                  <span class="sev-tag" [ngClass]="getRiskSeverityClass(f.severity)">
+                    {{ f.severity }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Progress bar of factor weight -->
+              <div class="factor-bar">
+                <div class="factor-fill" [style.width.%]="f.contribution_pct * 2.5" [ngClass]="getRiskSeverityClass(f.severity)"></div>
+              </div>
+
+              @if (f.metric_value) {
+                <div class="factor-metric">
+                  <strong>Metric:</strong> {{ f.metric_value }}
+                </div>
+              }
+
+              @if (f.details) {
+                <p class="factor-details">{{ f.details }}</p>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

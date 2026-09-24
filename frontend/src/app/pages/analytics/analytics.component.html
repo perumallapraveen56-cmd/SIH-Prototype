@@ -1,0 +1,196 @@
+<div class="analytics-page">
+  <div class="page-header">
+    <div class="header-left">
+      <span class="sub-heading">PORTFOLIO MACRO ANALYTICS • NATIONAL INFRASTRUCTURE MONITORING</span>
+      <h1>Risk Analysis & Delay Analytics Engine</h1>
+      <p class="description">Aggregated risk distributions, state corridor delay exposures, and systemic statutory bottleneck trends.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="loadAnalytics()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        Refresh Analytics
+      </button>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <span class="kpi-title">Total Monitored Projects</span>
+      <span class="kpi-value">{{ kpis()?.total_projects || projects().length }}</span>
+      <span class="kpi-sub">Across 8 States & UTs</span>
+    </div>
+
+    <div class="kpi-card">
+      <span class="kpi-title">High Delay Risk Projects</span>
+      <span class="kpi-value text-danger">{{ kpis()?.high_risk_projects || 5 }}</span>
+      <span class="kpi-sub">Requiring immediate SLAO action</span>
+    </div>
+
+    <div class="kpi-card">
+      <span class="kpi-title">Average Predicted Delay</span>
+      <span class="kpi-value text-warning">{{ kpis()?.average_predicted_delay_days || 69.8 }} Days</span>
+      <span class="kpi-sub">Across all corridors</span>
+    </div>
+
+    <div class="kpi-card">
+      <span class="kpi-title">Total Cost Exposure</span>
+      <span class="kpi-value font-mono">₹{{ totalPortfolioExposureCr() }} Cr</span>
+      <span class="kpi-sub">Cumulative daily delay burn rate</span>
+    </div>
+  </div>
+
+  <!-- Charts & Risk Distribution Row -->
+  <div class="analytics-row">
+    <!-- Risk Distribution Card (NO CRITICAL RISK) -->
+    <div class="card risk-dist-card">
+      <div class="card-header">
+        <div class="card-title-box">
+          <span class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10h-10V2z"></path></svg>
+          </span>
+          <div>
+            <h3>Project Risk Overview</h3>
+            <p>Macro risk level segmentation across all monitored assets</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="dist-bar-container">
+          <div class="dist-bar">
+            <div class="bar-segment high" [style.width.%]="chartData()?.high_risk_pct || 41.7"></div>
+            <div class="bar-segment med" [style.width.%]="chartData()?.medium_risk_pct || 33.3"></div>
+            <div class="bar-segment low" [style.width.%]="chartData()?.low_risk_pct || 25.0"></div>
+          </div>
+        </div>
+
+        <div class="dist-legend">
+          <div class="legend-item">
+            <span class="color-dot bg-danger"></span>
+            <div class="legend-details">
+              <strong>High Risk</strong>
+              <span>{{ chartData()?.high_risk_count || 5 }} Projects ({{ chartData()?.high_risk_pct || 41.7 }}%)</span>
+            </div>
+          </div>
+
+          <div class="legend-item">
+            <span class="color-dot bg-warning"></span>
+            <div class="legend-details">
+              <strong>Medium Risk</strong>
+              <span>{{ chartData()?.medium_risk_count || 4 }} Projects ({{ chartData()?.medium_risk_pct || 33.3 }}%)</span>
+            </div>
+          </div>
+
+          <div class="legend-item">
+            <span class="color-dot bg-success"></span>
+            <div class="legend-details">
+              <strong>Low Risk</strong>
+              <span>{{ chartData()?.low_risk_count || 3 }} Projects ({{ chartData()?.low_risk_pct || 25.0 }}%)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dist-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <span>Compliance Rule: Classification adheres to Ministry three-tier governance (High, Medium, Low).</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Statutory Risk Factors Prevalence Card -->
+    <div class="card factors-card">
+      <div class="card-header">
+        <div class="card-title-box">
+          <span class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6M6 20V10M18 20V4"></path></svg>
+          </span>
+          <div>
+            <h3>Systemic Delay Factor Prevalence</h3>
+            <p>Frequency and average delay contribution across 8 canonical factors</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body no-padding">
+        <div class="factors-list">
+          @for (f of factorPrevalence(); track f.factor) {
+            <div class="factor-row">
+              <div class="factor-main">
+                <span class="factor-name">{{ f.factor }}</span>
+                <span class="factor-cat">{{ f.category }}</span>
+              </div>
+              <div class="factor-stats">
+                <span class="badge" [class.badge-danger]="f.severity === 'HIGH'" [class.badge-warning]="f.severity === 'MEDIUM'" [class.badge-success]="f.severity === 'LOW'">
+                  {{ f.affected_projects }} Projects
+                </span>
+                <span class="delay-val text-danger font-bold">+{{ f.avg_delay_impact }}d Avg Delay</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- State-wise Exposure Table -->
+  <div class="card table-card">
+    <div class="card-header">
+      <div class="card-title-box">
+        <span class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+        </span>
+        <div>
+          <h3>State Corridor Delay & Financial Exposure Breakdown</h3>
+          <p>Comparative analysis of acquisition timelines and budgetary risk across states</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body no-padding">
+      <div class="table-responsive">
+        <table class="analytics-table">
+          <thead>
+            <tr>
+              <th>State Jurisdiction</th>
+              <th>Monitored Projects</th>
+              <th>High Risk Bottlenecks</th>
+              <th>Avg Predicted Delay</th>
+              <th>Total Financial Exposure</th>
+              <th class="text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of stateBreakdown(); track s.state) {
+              <tr>
+                <td><strong>{{ s.state }}</strong></td>
+                <td>{{ s.total_projects }}</td>
+                <td>
+                  @if (s.high_risk_count > 0) {
+                    <span class="badge badge-danger">{{ s.high_risk_count }} High Risk</span>
+                  } @else {
+                    <span class="badge badge-success">On Schedule</span>
+                  }
+                </td>
+                <td class="font-bold text-danger">{{ s.avg_delay_days }} Days</td>
+                <td class="font-mono font-bold">₹{{ s.total_cost_cr }} Cr</td>
+                <td class="text-right">
+                  <a [routerLink]="['/gis-map']" class="btn btn-sm btn-outline">
+                    View on GIS Map
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

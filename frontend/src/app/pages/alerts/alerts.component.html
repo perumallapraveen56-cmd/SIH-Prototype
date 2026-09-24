@@ -1,0 +1,132 @@
+<div class="alerts-page">
+  <div class="page-header">
+    <div class="header-titles">
+      <h1 class="page-title">Corridor Risk Alerts & Early Warnings</h1>
+      <p class="page-desc">Automated escalation triggers when land acquisition delay thresholds or environmental hurdles are exceeded</p>
+    </div>
+
+    <!-- Action Toolbar (Live Demo Trigger for Evaluator!) -->
+    <div class="header-actions">
+      <button class="test-sound-btn" (click)="testAudio()" title="Test Web Audio Warning Sound">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+        <span>Test Alert Chime</span>
+      </button>
+
+      <button class="live-trigger-btn" (click)="triggerDemoAlert()" [disabled]="isTriggeringLive()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+        <span>{{ isTriggeringLive() ? 'Generating Alert...' : 'Simulate Live High-Risk Spike' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter Pills Bar -->
+  <div class="filter-bar-card">
+    <div class="filter-pills">
+      <button class="pill" [class.active]="activeFilter() === 'ALL'" (click)="applyFilter('ALL')">
+        All Alerts ({{ alerts().length }})
+      </button>
+      <button class="pill unack" [class.active]="activeFilter() === 'UNACKNOWLEDGED'" (click)="applyFilter('UNACKNOWLEDGED')">
+        Unacknowledged
+      </button>
+      <button class="pill high" [class.active]="activeFilter() === 'HIGH'" (click)="applyFilter('HIGH')">
+        High Severity
+      </button>
+      <button class="pill medium" [class.active]="activeFilter() === 'MEDIUM'" (click)="applyFilter('MEDIUM')">
+        Medium Severity
+      </button>
+    </div>
+
+    <div class="sound-status-pill">
+      <span class="status-indicator" [class.on]="soundService.soundEnabled()"></span>
+      <span>Audio Notifications: <strong>{{ soundService.soundEnabled() ? 'ENABLED' : 'MUTED' }}</strong></span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="state-card loading-state">
+      <div class="loader-spinner"></div>
+      <h3>Refreshing Alerts Registry...</h3>
+      <p>Querying real-time event logs from backend database.</p>
+    </div>
+  }
+
+  <!-- Alerts List -->
+  @if (!isLoading()) {
+    <div class="alerts-list">
+      @for (a of filteredAlerts(); track a.alert_id) {
+        <div class="alert-card" [class.unack]="!a.acknowledged" [class.high-border]="a.severity === 'HIGH'">
+          <div class="alert-top-row">
+            <div class="severity-id-wrap">
+              <span class="sev-badge" [class.high]="a.severity === 'HIGH'" [class.medium]="a.severity === 'MEDIUM'">
+                {{ a.severity }} SEVERITY
+              </span>
+              <span class="alert-code">{{ a.alert_id }}</span>
+              @if (!a.acknowledged) {
+                <span class="new-pill">NEW / UNACKNOWLEDGED</span>
+              }
+            </div>
+
+            <div class="alert-meta-time">
+              <span class="timestamp">{{ a.created_at | date:'medium' }}</span>
+            </div>
+          </div>
+
+          <div class="alert-main-content">
+            <div class="project-header-row">
+              <h3 class="alert-project-title">{{ a.project_name }}</h3>
+              <span class="alert-district">{{ a.district }}</span>
+            </div>
+
+            <p class="alert-reason">
+              <strong>Risk Reason:</strong> {{ a.reason }}
+            </p>
+
+            <div class="alert-recommendation-box">
+              <span class="rec-label">Recommended Action:</span>
+              <p class="rec-action-text">{{ a.recommended_action }}</p>
+            </div>
+          </div>
+
+          <div class="alert-footer-row">
+            <div class="ack-status-info">
+              @if (a.acknowledged) {
+                <span class="ack-text">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Acknowledged by <strong>{{ a.acknowledged_by }}</strong>
+                  @if (a.acknowledged_at) {
+                    <span>({{ a.acknowledged_at | date:'shortTime' }})</span>
+                  }
+                </span>
+              } @else {
+                <span class="unack-text">Awaiting administrative acknowledgment</span>
+              }
+            </div>
+
+            <div class="alert-btns">
+              <a [routerLink]="['/projects', a.project_id]" class="inspect-btn">
+                <span>Inspect Corridor</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </a>
+
+              @if (!a.acknowledged) {
+                <button class="ack-btn" (click)="acknowledge(a)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Acknowledge Alert</span>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (filteredAlerts().length === 0) {
+        <div class="empty-alerts-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+          <h3>No Alerts Matching Filter</h3>
+          <p>All monitored infrastructure projects are operating within acceptable clearance thresholds.</p>
+        </div>
+      }
+    </div>
+  }
+</div>

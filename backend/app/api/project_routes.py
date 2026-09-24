@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.schemas.project import ProjectSummary, ProjectDetail
-from app.services.project_service import get_projects, get_project_detail
+from app.services.project_service import get_projects, get_project_detail, get_land_parcels
 from app.api.deps import get_current_user
 from app.models.user import User
 
@@ -54,3 +54,24 @@ def get_project_risk_factors(
         "top_risk_factors": project.top_risk_factors,
         "estimated_cost_impact_cr": project.estimated_cost_impact_cr
     }
+
+@router.get("/parcels/all")
+def list_all_land_parcels(
+    project_id: Optional[int] = Query(None, description="Filter by project ID"),
+    stage: Optional[str] = Query(None, description="Filter by acquisition stage"),
+    dispute_status: Optional[str] = Query(None, description="Filter by dispute status"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return get_land_parcels(db, project_id=project_id, stage=stage, dispute_status=dispute_status)
+
+@router.get("/{project_id}/parcels")
+def list_project_parcels(
+    project_id: int,
+    stage: Optional[str] = Query(None, description="Filter by acquisition stage"),
+    dispute_status: Optional[str] = Query(None, description="Filter by dispute status"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return get_land_parcels(db, project_id=project_id, stage=stage, dispute_status=dispute_status)
+

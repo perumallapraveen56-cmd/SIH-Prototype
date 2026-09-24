@@ -152,3 +152,104 @@ def get_project_detail(db: Session, project_id: int) -> Optional[ProjectDetail]:
         risk_prediction=risk_pred_item,
         top_risk_factors=risk_factors_items
     )
+
+def get_land_parcels(
+    db: Session,
+    project_id: Optional[int] = None,
+    stage: Optional[str] = None,
+    dispute_status: Optional[str] = None
+) -> List[Dict[str, Any]]:
+    """
+    Returns granular cadastral land parcel records across monitored infrastructure projects.
+    """
+    projects_query = db.query(Project)
+    if project_id:
+        projects_query = projects_query.filter(Project.id == project_id)
+    projects = projects_query.all()
+
+    parcels: List[Dict[str, Any]] = []
+
+    # Deterministic generation of 3-4 realistic cadastral parcels per project
+    villages_pool = [
+        "Sultanpur Khurd", "Bhowapur", "Navi Vasti", "Khed Shivapur",
+        "Bidadi Hobli", "Kalasipalya", "Sanand Rural", "Manesar Village",
+        "Sriperumbudur", "Singur Purba", "Shamshabad", "Mandhana"
+    ]
+    owners_pool = [
+        "Rameshwar Dayal & Brothers", "Smt. Shanti Devi", "Kisan Sahakari Samiti",
+        "Mahesh Chandra Sharma", "Gram Panchayat / Gaon Sabha", "Satish Kumar Patel",
+        "Lakshmana Gowda & Heirs", "Murugan Chettiar", "Tapan Roy & Sons"
+    ]
+    categories = [
+        "Agricultural (Double Cropped)", "Agricultural (Rainfed)",
+        "Commercial / Roadside Abadi", "Residential Plot", "Gram Sabha Common Land"
+    ]
+    stages_list = [
+        "Section 11 (Preliminary Notification)",
+        "Section 19 (Declaration of Acquisition)",
+        "Section 21 (Notice to Persons Interested)",
+        "Section 23/30 (Enquiry & Award Declaration)",
+        "Section 38 (Possession Taken)",
+        "R&R Compensation Disbursed"
+    ]
+    disputes_pool = [
+        "Clear / No Dispute",
+        "Clear / Compensation Agreed",
+        "Title Injunction in Civil Court",
+        "High Court Compensation Enhancement Writ",
+        "Gram Sabha Boundary Demarcation Dispute",
+        "Family Partition Suit Pending"
+    ]
+
+    for p in projects:
+        num_parcels = min(5, max(3, p.total_parcels // 30))
+        for idx in range(1, num_parcels + 1):
+            seed_val = (p.id * 17 + idx * 23)
+            khasra_no = f"{100 + (seed_val % 450)}/{idx + (seed_val % 7)}"
+            parcel_code = f"PC-{p.project_code.replace('PRJ-', '')}-{idx:02d}"
+            village = villages_pool[(p.id + idx) % len(villages_pool)]
+            owner = owners_pool[(p.id * 2 + idx) % len(owners_pool)]
+            category = categories[(p.id + idx) % len(categories)]
+            area = round(0.45 + ((seed_val % 85) / 20.0), 2)
+            
+            p_stage = stages_list[(p.id + idx) % len(stages_list)]
+            disp = disputes_pool[(p.id + idx) % len(disputes_pool)]
+            
+            # Risk determination based on dispute & stage
+            is_high_risk = "Court" in disp or "Writ" in disp or "Dispute" in disp
+            p_risk_level = "HIGH" if is_high_risk else ("MEDIUM" if "Section 11" in p_stage else "LOW")
+            delay_est = 120 if is_high_risk else (45 if "Section 11" in p_stage else 10)
+
+            compensation_amt = round(area * 45.5, 2) # in Lakhs
+            comp_status = "Disbursed via PFMS/DBT" if p_stage in ["Section 38 (Possession Taken)", "R&R Compensation Disbursed"] else (
+                "Deposited in Civil Court (Sec 77)" if "Court" in disp else "Under Verification / SLAO Scrutiny"
+            )
+
+            # Apply filters if specified
+            if stage and stage.lower() not in p_stage.lower():
+                continue
+            if dispute_status and dispute_status.lower() not in disp.lower():
+                continue
+
+            parcels.append({
+                "parcel_id": parcel_code,
+                "khasra_no": khasra_no,
+                "project_id": p.id,
+                "project_code": p.project_code,
+                "project_name": p.name,
+                "village": village,
+                "district": p.district,
+                "state": p.state,
+                "khatedar_owner": owner,
+                "land_category": category,
+                "area_ha": area,
+                "acquisition_stage": p_stage,
+                "dispute_status": disp,
+                "compensation_status": comp_status,
+                "compensation_amount_lakhs": compensation_amt,
+                "risk_level": p_risk_level,
+                "predicted_delay_days": delay_est
+            })
+
+    return parcels
+
