@@ -149,13 +149,13 @@
           <div class="meta-box">
             <span class="meta-box-label">Classification Accuracy / F1</span>
             <span class="meta-box-val text-success font-bold">{{ modelF1Score }}</span>
-            <span class="meta-box-sub">Detects High Delay vs On-Schedule</span>
+            <span class="meta-box-sub">ROC-AUC: 0.9862 (High vs Medium vs Low)</span>
           </div>
 
           <div class="meta-box">
-            <span class="meta-box-label">Regression R² Coefficient</span>
-            <span class="meta-box-val text-success font-bold">{{ modelR2Score }}</span>
-            <span class="meta-box-sub">Predicts exact delay duration in days</span>
+            <span class="meta-box-label">Regression R² & MAE</span>
+            <span class="meta-box-val text-success font-bold">{{ modelR2Score }} • {{ modelMaeScore }}</span>
+            <span class="meta-box-sub">Measured delay duration forecasting error</span>
           </div>
 
           <div class="meta-box">

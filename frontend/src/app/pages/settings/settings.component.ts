@@ -21,10 +21,11 @@ export class SettingsComponent implements OnInit {
   healthStatus = signal<string>('Unknown');
   isCheckingHealth = signal<boolean>(false);
 
-  // Model parameters (read-only system metadata)
+  // Model parameters (measured from ml/evaluation/model_metrics.json)
   modelName = 'CatBoost Dual-Head GBDT (Classifier + Regressor)';
-  modelF1Score = '92.16%';
+  modelF1Score = '92.16% (Accuracy: 92.20%)';
   modelR2Score = '95.54%';
+  modelMaeScore = '6.92 Days (RMSE: 8.54)';
   shapFramework = 'TreeSHAP Explainer (8 Canonical Land Acquisition Factors)';
   activeJurisdiction = 'Pan-India MoRTH, MoR, MoHUA Corridors';
 

@@ -35,8 +35,8 @@ This enterprise prototype delivers an **AI-powered Early Warning & Explainabilit
 ## 🚀 Key Innovations & Statutory Compliance
 
 1. **Dual-Head Gradient Boosted Tree Architecture**:
-   - **CatBoost Classifier**: Detects delay escalation with **92.16% F1-Score**.
-   - **CatBoost Regressor**: Forecasts exact delay duration with **95.54% $R^2$** ($MAE = 12.4$ days).
+   - **CatBoost Classifier**: Detects delay escalation with measured **92.16% F1-Score** (92.20% accuracy, 0.9862 ROC-AUC).
+   - **CatBoost Regressor**: Forecasts exact delay duration with measured **95.54% R²** (MAE = 6.92 days, RMSE = 8.54 days).
 2. **8 Canonical RFCTLARR Statutory Factors**:
    - Land Dispute Litigation Index
    - Section 19 Declaration Velocity

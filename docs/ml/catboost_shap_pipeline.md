@@ -26,13 +26,15 @@ flowchart LR
 
 During development, both CatBoost and LightGBM were trained on a balanced synthetic dataset of 2,500 historical Indian acquisition projects spanning 2014–2025 across road, rail, metro, port, and industrial corridors.
 
-| Metric | CatBoost Dual-Head | LightGBM Dual-Head | Selected Winner |
+| Metric | CatBoost Dual-Head (Measured) | LightGBM Dual-Head (Measured) | Selected Winner |
 | :--- | :--- | :--- | :--- |
-| **Classifier F1-Score (High Delay)** | **0.9216** | 0.8942 | **CatBoost** |
-| **Classifier ROC-AUC** | **0.9634** | 0.9412 | **CatBoost** |
-| **Regressor $R^2$ Score** | **0.9554** | 0.9321 | **CatBoost** |
-| **Regressor MAE (Days)** | **12.4 Days** | 16.8 Days | **CatBoost** |
-| **TreeSHAP Computation Time** | **< 15ms per project** | ~ 22ms per project | **CatBoost** |
+| **Classifier F1-Score (Weighted)** | **0.9216** | 0.9015 | **CatBoost** |
+| **Classifier Accuracy** | **0.9220** | 0.9020 | **CatBoost** |
+| **Classifier ROC-AUC** | **0.9862** | 0.9779 | **CatBoost** |
+| **Regressor R² Score** | **0.9554** | 0.9369 | **CatBoost** |
+| **Regressor MAE (Days)** | **6.92 Days** | 8.06 Days | **CatBoost** |
+| **Regressor RMSE (Days)** | **8.54 Days** | 10.15 Days | **CatBoost** |
+| **Inference Latency** | **< 15ms per project** | ~ 20ms per project | **CatBoost** |
 
 **Selection Rationale**:
 - CatBoost handles categorical features (such as `state`, `project_type`, `current_stage`) natively with target encoding and minimal overfitting.
