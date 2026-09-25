@@ -11,8 +11,8 @@ Authenticates a user session with username and password.
 - **Request Body**:
   ```json
   {
-    "username": "officer@gov.in",
-    "password": "Password123!"
+    "email": "user@domain.gov.in",
+    "password": "<AUTHENTICATED_CREDENTIAL>"
   }
   ```
 - **Response** (`200 OK`):

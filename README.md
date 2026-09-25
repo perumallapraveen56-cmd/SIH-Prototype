@@ -60,11 +60,11 @@ This enterprise prototype delivers an **AI-powered Early Warning & Explainabilit
 Follow this sequence to inspect all prototype capabilities matching the reference specification:
 
 1. **Login (`/login`)**:
-   - Sign in with official demo credentials:
-     - **Revenue Officer**: `officer@gov.in` / `Password123!`
-     - **Data Analyst**: `analyst@gov.in` / `Password123!`
-     - **Super Admin**: `admin@gov.in` / `Password123!`
-   - Single Sign-On (SSO) mock buttons for Jan Parichay and DigiLocker.
+   - Access via the built-in one-click role selector buttons on the login screen:
+     - **Revenue Officer** (Operational field monitoring & SLAO intervention)
+     - **Data Analyst** (TreeSHAP explainability & What-If scenario simulations)
+     - **Super Admin** (Full administrative oversight & portfolio control)
+   - Single Sign-On (SSO) integration options for Jan Parichay and DigiLocker.
 2. **Dashboard (`/dashboard`)**:
    - Real-time statutory KPI cards (Total Projects, Cadastral Parcels, High/Medium/Low counts).
    - Project Risk Overview Chart (Red, Yellow, Green distribution).

@@ -25,11 +25,11 @@ flowchart LR
 
 ### Stage 1: Role-Based Secure Login
 - **Route**: `/login`
-- **Demo Accounts**:
-  - `Revenue Officer`: `officer@gov.in` / `Password123!`
-  - `Data Analyst`: `analyst@gov.in` / `Password123!`
-  - `Super Admin`: `admin@gov.in` / `Password123!`
-- **SSO Mock Options**: National Single Sign-On (Jan Parichay) and DigiLocker integrations.
+- **Role Demonstration Access**:
+  - `Revenue Officer`: Pre-configured for operational land monitoring & SLAO intervention
+  - `Data Analyst`: Pre-configured for TreeSHAP explainability & What-If scenario simulations
+  - `Super Admin`: Pre-configured for complete administrative oversight & user control
+- **SSO Integration**: National Single Sign-On (Jan Parichay) and DigiLocker integrations.
 
 ### Stage 2: Executive Dashboard
 - **Route**: `/dashboard`
