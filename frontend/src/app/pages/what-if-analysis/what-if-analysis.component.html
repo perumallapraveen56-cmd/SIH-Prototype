@@ -1,9 +1,21 @@
 <div class="what-if-page">
   <!-- Page Header & Project Context -->
   <div class="page-header">
+    <div class="header-breadcrumb">
+      <a routerLink="/projects">Projects</a>
+      <span>/</span>
+      <a routerLink="/gis-map">GIS Map</a>
+      <span>/</span>
+      <a [routerLink]="['/projects', selectedProjectId()]">Project #{{ selectedProjectId() }}</a>
+      <span>/</span>
+      <a routerLink="/shap" [queryParams]="{ projectId: selectedProjectId() }">SHAP Analysis</a>
+      <span>/</span>
+      <span class="curr">Explainable AI</span>
+    </div>
+
     <div class="header-titles">
-      <h1 class="page-title">Recommendations & What-If Scenario Simulator</h1>
-      <p class="page-desc">Simulate policy interventions, fast-track approvals, and quantify projected delay & cost reduction in real-time</p>
+      <h1 class="page-title">Explainable AI & What-If Scenario Simulator</h1>
+      <p class="page-desc">Data-driven policy interventions, root-cause mitigations, and schedule recovery quantified by backend ML models</p>
     </div>
 
     <div class="project-selector-box">

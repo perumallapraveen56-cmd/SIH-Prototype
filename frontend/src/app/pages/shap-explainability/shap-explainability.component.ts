@@ -72,9 +72,8 @@ export class ShapExplainabilityComponent implements OnInit {
 
   navigateToWhatIf(): void {
     const data = this.shapData();
-    if (data) {
-      this.router.navigate(['/what-if'], { queryParams: { projectId: data.project_id } });
-    }
+    const pId = data ? data.project_id : this.selectedProjectId();
+    this.router.navigate(['/what-if'], { queryParams: { projectId: pId } });
   }
 
   getRiskSeverityClass(level: string): string {

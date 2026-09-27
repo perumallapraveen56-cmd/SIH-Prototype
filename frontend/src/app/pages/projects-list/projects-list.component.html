@@ -24,10 +24,34 @@
       </p>
     </div>
     <div class="header-actions">
+      <a routerLink="/gis-map" class="btn btn-primary gis-header-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+        <span>Open GIS Map</span>
+      </a>
       <button class="btn btn-outline" (click)="loadProjects()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
         Refresh
       </button>
+    </div>
+  </div>
+
+  <!-- Interactive GIS Map Navigation Card (Requirement #2: Flow Step 1 -> Step 2) -->
+  <div class="gis-navigation-banner" routerLink="/gis-map">
+    <div class="banner-spatial-graphic">
+      <div class="spatial-icon-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+      </div>
+    </div>
+    <div class="banner-body">
+      <div class="banner-tag">GIS GEOSPATIAL INTELLIGENCE</div>
+      <h3 class="banner-headline">Interactive GIS Risk Map & Corridor Visualizer</h3>
+      <p class="banner-desc">View all {{ filteredProjects().length }} monitored projects mapped across India with delay risk markers, geo-referenced cadastral parcels, and spatial bottleneck layers.</p>
+    </div>
+    <div class="banner-cta">
+      <a routerLink="/gis-map" class="btn btn-gis-cta" (click)="$event.stopPropagation()">
+        <span>Explore GIS Map</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </a>
     </div>
   </div>
 
@@ -90,18 +114,33 @@
   <!-- Projects Grid / Cards View -->
   <div class="projects-grid">
     @for (p of filteredProjects(); track p.id) {
-      <div class="project-card" [class.card-high]="p.risk_level === 'HIGH'" [class.card-medium]="p.risk_level === 'MEDIUM'" [class.card-low]="p.risk_level === 'LOW'">
+      <div
+        class="project-card"
+        [class.card-high]="p.risk_level === 'HIGH'"
+        [class.card-medium]="p.risk_level === 'MEDIUM'"
+        [class.card-low]="p.risk_level === 'LOW'"
+        (click)="navigateToProject(p.id)"
+        role="button"
+        tabindex="0"
+        [title]="'View Details for ' + p.name"
+      >
         <div class="card-top">
           <div class="project-badges">
-            <span class="code-badge font-mono">{{ p.project_code }}</span>
+            <a [routerLink]="['/projects', p.id]" class="code-badge-link" (click)="$event.stopPropagation()" [title]="'View Details for ' + p.project_code">
+              <span class="code-badge font-mono">{{ p.project_code }}</span>
+            </a>
             <span class="type-badge">{{ p.project_type }}</span>
           </div>
-          <span class="risk-badge" [class.risk-badge-high]="p.risk_level === 'HIGH'" [class.risk-badge-med]="p.risk_level === 'MEDIUM'" [class.risk-badge-low]="p.risk_level === 'LOW'">
-            {{ p.risk_level }} RISK
-          </span>
+          <a [routerLink]="['/projects', p.id]" class="risk-badge-link" (click)="$event.stopPropagation()">
+            <span class="risk-badge" [class.risk-badge-high]="p.risk_level === 'HIGH'" [class.risk-badge-med]="p.risk_level === 'MEDIUM'" [class.risk-badge-low]="p.risk_level === 'LOW'">
+              {{ p.risk_level }} RISK
+            </span>
+          </a>
         </div>
 
-        <h3 class="project-title">{{ p.name }}</h3>
+        <a [routerLink]="['/projects', p.id]" class="project-title-link" (click)="$event.stopPropagation()" [title]="'Open details for ' + p.name">
+          <h3 class="project-title">{{ p.name }}</h3>
+        </a>
         <div class="project-location">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
           <span>{{ p.district }}, {{ p.state }}</span>

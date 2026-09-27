@@ -43,8 +43,8 @@
   @if (!isLoading() && !hasError() && kpis(); as kpi) {
     <!-- KPI Metrics Grid (Requirement #6) -->
     <div class="kpi-grid">
-      <!-- Card 1: Total Projects -->
-      <div class="kpi-card">
+      <!-- Card 1: Total Projects (Requirement #1.A) -->
+      <div class="kpi-card interactive-kpi" routerLink="/projects" role="button" tabindex="0" title="Click to view all monitored projects">
         <div class="kpi-header">
           <span class="kpi-label">Total Projects</span>
           <div class="kpi-icon-badge blue">
@@ -53,15 +53,15 @@
         </div>
         <div class="kpi-body">
           <span class="kpi-value">{{ kpi.total_projects }}</span>
-          <span class="kpi-trend positive">Active Pipeline</span>
+          <span class="kpi-trend positive">Active Pipeline &rarr;</span>
         </div>
         <div class="kpi-footer">
           <span>Across 8 States & Major Corridors</span>
         </div>
       </div>
 
-      <!-- Card 2: Land Parcels -->
-      <div class="kpi-card">
+      <!-- Card 2: Land Parcels (Requirement #1.B) -->
+      <div class="kpi-card interactive-kpi" routerLink="/land-records" role="button" tabindex="0" title="Click to view land parcel cadastral records">
         <div class="kpi-header">
           <span class="kpi-label">Land Parcels</span>
           <div class="kpi-icon-badge purple">
@@ -70,15 +70,15 @@
         </div>
         <div class="kpi-body">
           <span class="kpi-value">{{ kpi.land_parcels | number }}</span>
-          <span class="kpi-trend neutral">Surveyed Khasras</span>
+          <span class="kpi-trend neutral">Surveyed Khasras &rarr;</span>
         </div>
         <div class="kpi-footer">
           <span>100% RoR Georeferenced</span>
         </div>
       </div>
 
-      <!-- Card 3: High-Risk Projects -->
-      <div class="kpi-card high-risk-card">
+      <!-- Card 3: High-Risk Projects (Requirement #1.C) -->
+      <div class="kpi-card high-risk-card interactive-kpi" routerLink="/projects" [queryParams]="{ risk: 'HIGH' }" role="button" tabindex="0" title="Click to view high-risk projects requiring SLAO intervention">
         <div class="kpi-header">
           <span class="kpi-label">High-Risk Projects</span>
           <div class="kpi-icon-badge red">
@@ -87,15 +87,15 @@
         </div>
         <div class="kpi-body">
           <span class="kpi-value text-red">{{ kpi.high_risk_projects }}</span>
-          <span class="kpi-trend negative">Requires Attention</span>
+          <span class="kpi-trend negative">Requires Attention &rarr;</span>
         </div>
         <div class="kpi-footer">
           <span>{{ riskChartData()?.high_risk_pct }}% of active portfolio</span>
         </div>
       </div>
 
-      <!-- Card 4: Average Predicted Delay -->
-      <div class="kpi-card">
+      <!-- Card 4: Average Predicted Delay (Requirement #1.D) -->
+      <div class="kpi-card interactive-kpi" routerLink="/analytics" role="button" tabindex="0" title="Click to view delay risk analytics & forecasting">
         <div class="kpi-header">
           <span class="kpi-label">Average Predicted Delay</span>
           <div class="kpi-icon-badge amber">
@@ -104,15 +104,15 @@
         </div>
         <div class="kpi-body">
           <span class="kpi-value">{{ kpi.average_predicted_delay_days }}</span>
-          <span class="kpi-unit">Days</span>
+          <span class="kpi-unit">Days &rarr;</span>
         </div>
         <div class="kpi-footer">
           <span>CatBoost Regressor (R²: 0.955)</span>
         </div>
       </div>
 
-      <!-- Card 5: Acquisition Progress -->
-      <div class="kpi-card">
+      <!-- Card 5: Acquisition Progress (Requirement #1.D) -->
+      <div class="kpi-card interactive-kpi" routerLink="/projects" [queryParams]="{ sort: 'progress_asc' }" role="button" tabindex="0" title="Click to view projects sorted by acquisition progress">
         <div class="kpi-header">
           <span class="kpi-label">Acquisition Progress</span>
           <div class="kpi-icon-badge green">
@@ -126,7 +126,7 @@
           </div>
         </div>
         <div class="kpi-footer">
-          <span>Physical Possession Rate</span>
+          <span>Physical Possession Rate &rarr;</span>
         </div>
       </div>
     </div>
@@ -158,44 +158,44 @@
               </div>
             </div>
 
-            <!-- Risk Legend Cards -->
+            <!-- Risk Legend Cards (Requirement #1.C & #1.D) -->
             <div class="risk-legend-cards">
-              <div class="legend-card high">
+              <div class="legend-card high" routerLink="/projects" [queryParams]="{ risk: 'HIGH' }" role="button" tabindex="0" title="Filter to High Risk projects">
                 <div class="legend-indicator"></div>
                 <div class="legend-info">
                   <span class="legend-title">HIGH RISK</span>
                   <span class="legend-count">{{ chart.high_risk_count }} Projects</span>
                   <span class="legend-pct">{{ chart.high_risk_pct }}% of total</span>
                 </div>
-                <div class="legend-impact">Critical clearances / compensation bottlenecks</div>
+                <div class="legend-impact">Critical clearances / compensation bottlenecks &rarr;</div>
               </div>
 
-              <div class="legend-card medium">
+              <div class="legend-card medium" routerLink="/projects" [queryParams]="{ risk: 'MEDIUM' }" role="button" tabindex="0" title="Filter to Medium Risk projects">
                 <div class="legend-indicator"></div>
                 <div class="legend-info">
                   <span class="legend-title">MEDIUM RISK</span>
                   <span class="legend-count">{{ chart.medium_risk_count }} Projects</span>
                   <span class="legend-pct">{{ chart.medium_risk_pct }}% of total</span>
                 </div>
-                <div class="legend-impact">Manageable disputes under administrative review</div>
+                <div class="legend-impact">Manageable disputes under administrative review &rarr;</div>
               </div>
 
-              <div class="legend-card low">
+              <div class="legend-card low" routerLink="/projects" [queryParams]="{ risk: 'LOW' }" role="button" tabindex="0" title="Filter to Low Risk projects">
                 <div class="legend-indicator"></div>
                 <div class="legend-info">
                   <span class="legend-title">LOW RISK</span>
                   <span class="legend-count">{{ chart.low_risk_count }} Projects</span>
                   <span class="legend-pct">{{ chart.low_risk_pct }}% of total</span>
                 </div>
-                <div class="legend-impact">On schedule with statutory approvals secured</div>
+                <div class="legend-impact">On schedule with statutory approvals secured &rarr;</div>
               </div>
             </div>
           </div>
         }
       </div>
 
-      <!-- Quick GIS Map Preview Card -->
-      <div class="gis-preview-card">
+      <!-- Quick GIS Map Preview Card (Requirement #2) -->
+      <div class="gis-preview-card" routerLink="/gis-map" style="cursor: pointer;">
         <div class="card-header">
           <div class="title-wrap">
             <h3 class="card-title">Geospatial Intelligence</h3>
@@ -206,15 +206,15 @@
 
         <div class="gis-quick-content">
           <div class="gis-summary-stats">
-            <div class="stat-pill red">
+            <div class="stat-pill red" routerLink="/gis-map" [queryParams]="{ risk: 'HIGH' }" role="button" tabindex="0" title="View High Risk map markers">
               <span class="dot"></span>
               <span>5 Red Markers (High Risk)</span>
             </div>
-            <div class="stat-pill amber">
+            <div class="stat-pill amber" routerLink="/gis-map" [queryParams]="{ risk: 'MEDIUM' }" role="button" tabindex="0" title="View Medium Risk map markers">
               <span class="dot"></span>
               <span>4 Amber Markers (Medium)</span>
             </div>
-            <div class="stat-pill green">
+            <div class="stat-pill green" routerLink="/gis-map" [queryParams]="{ risk: 'LOW' }" role="button" tabindex="0" title="View Low Risk map markers">
               <span class="dot"></span>
               <span>3 Green Markers (Low)</span>
             </div>
@@ -262,13 +262,17 @@
           </thead>
           <tbody>
             @for (p of recentProjects(); track p.id) {
-              <tr class="project-row" [routerLink]="['/projects', p.id]">
+              <tr class="project-row" [routerLink]="['/projects', p.id]" role="button" tabindex="0" [title]="'View Details for ' + p.name">
                 <td class="col-code">
-                  <span class="code-tag">{{ p.project_code }}</span>
+                  <a [routerLink]="['/projects', p.id]" class="code-link" (click)="$event.stopPropagation()" [title]="'View Details for ' + p.project_code">
+                    <span class="code-tag">{{ p.project_code }}</span>
+                  </a>
                 </td>
                 <td class="col-name">
                   <div class="name-cell">
-                    <span class="project-title">{{ p.name }}</span>
+                    <a [routerLink]="['/projects', p.id]" class="project-name-link" (click)="$event.stopPropagation()" [title]="'View Details for ' + p.name">
+                      <span class="project-title">{{ p.name }}</span>
+                    </a>
                     <span class="project-type-tag">{{ p.project_type }}</span>
                   </div>
                 </td>

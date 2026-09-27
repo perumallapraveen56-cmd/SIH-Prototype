@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import * as L from 'leaflet';
 
 import { ApiService } from '../../core/services/api.service';
@@ -33,12 +33,20 @@ export class GisMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private apiService: ApiService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.loadFilterOptions();
-    this.fetchMarkers();
+
+    this.route.queryParamMap.subscribe(params => {
+      const risk = params.get('risk');
+      if (risk) {
+        this.selectedRisk.set(risk.toUpperCase());
+      }
+      this.fetchMarkers();
+    });
   }
 
   ngAfterViewInit(): void {
@@ -151,31 +159,54 @@ export class GisMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
       const leafletMarker = L.marker([m.latitude, m.longitude], { icon: customIcon });
 
-      // Popup Content on map pin click
+      // Tooltip on marker hover
+      leafletMarker.bindTooltip(`
+        <div style="font-family: system-ui, sans-serif; font-size: 11px;">
+          <b>${m.project_code}</b>: ${m.name}<br/>
+          <span style="color: ${color}; font-weight: 700;">${m.risk_level} RISK (+${m.predicted_delay_days}d delay)</span><br/>
+          <small style="color: #4f46e5; font-weight: 600;">Click to open Project Details &rarr;</small>
+        </div>
+      `, { direction: 'top', offset: [0, -14] });
+
+      // Popup Content on map pin
       const popupHtml = `
-        <div style="min-width: 200px; font-family: system-ui, sans-serif; padding: 4px;">
+        <div style="min-width: 210px; font-family: system-ui, sans-serif; padding: 4px;">
           <div style="font-size: 11px; font-weight: 700; color: #4f46e5; margin-bottom: 2px;">${m.project_code}</div>
           <div style="font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">${m.name}</div>
           <div style="font-size: 12px; color: #475569; margin-bottom: 4px;"><b>District:</b> ${m.district}, ${m.state}</div>
           <div style="font-size: 12px; color: #475569; margin-bottom: 4px;"><b>Risk Score:</b> ${m.risk_score} / 100 (${m.risk_level})</div>
           <div style="font-size: 12px; color: #475569; margin-bottom: 8px;"><b>Predicted Delay:</b> +${m.predicted_delay_days} Days</div>
-          <a href="/projects/${m.id}" style="
+          <button id="popup-nav-${m.id}" style="
             display: inline-block;
             background: #4f46e5;
             color: #ffffff;
-            padding: 4px 10px;
-            border-radius: 4px;
+            padding: 5px 12px;
+            border-radius: 6px;
             font-size: 11px;
-            font-weight: 600;
-            text-decoration: none;
-          ">View Details &rarr;</a>
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+          ">View Full Project Details &rarr;</button>
         </div>
       `;
 
       leafletMarker.bindPopup(popupHtml);
 
+      leafletMarker.on('popupopen', () => {
+        const btn = document.getElementById(`popup-nav-${m.id}`);
+        if (btn) {
+          btn.onclick = (e) => {
+            e.preventDefault();
+            this.navigateToProject(m.id);
+          };
+        }
+      });
+
+      // Direct navigation on clicking the risk project map marker (Requirement #3)
       leafletMarker.on('click', () => {
         this.selectedMarker.set(m);
+        this.navigateToProject(m.id);
       });
 
       this.markersLayer!.addLayer(leafletMarker);
@@ -185,6 +216,10 @@ export class GisMapComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.markers().length > 0 && bounds.isValid()) {
       this.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 8 });
     }
+  }
+
+  public navigateToProject(id: number): void {
+    this.router.navigate(['/projects', id]);
   }
 
   public selectMarkerFromList(m: ProjectGISMarker): void {

@@ -456,6 +456,20 @@
             color: #64748b;
           }
         }
+
+        .list-nav-arrow {
+          margin-left: auto;
+          color: #94a3b8;
+          font-weight: 700;
+          font-size: 0.85rem;
+          padding-left: 0.35rem;
+          transition: color 0.15s ease, transform 0.15s ease;
+        }
+
+        &:hover .list-nav-arrow {
+          color: #4f46e5;
+          transform: translateX(2px);
+        }
       }
     }
   }

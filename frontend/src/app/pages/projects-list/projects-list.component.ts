@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
 import { ProjectSummary } from '../../core/models/project.model';
@@ -50,8 +50,11 @@ export class ProjectsListComponent implements OnInit {
     }
 
     if (query) {
+      // Support phonetic aliases (e.g. Kuthampur -> Udhampur)
+      const alias = query.replace(/kuthampur/gi, 'udhampur');
       list = list.filter(p =>
         p.name.toLowerCase().includes(query) ||
+        p.name.toLowerCase().includes(alias) ||
         p.project_code.toLowerCase().includes(query) ||
         p.district.toLowerCase().includes(query) ||
         p.state.toLowerCase().includes(query)
@@ -73,7 +76,8 @@ export class ProjectsListComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -81,7 +85,28 @@ export class ProjectsListComponent implements OnInit {
     this.route.data.subscribe(data => {
       this.isCriticalOnly.set(!!data['criticalOnly']);
     });
+
+    // Support query parameters (e.g. /projects?risk=HIGH, /projects?sort=delay_desc)
+    this.route.queryParamMap.subscribe(params => {
+      const risk = params.get('risk');
+      if (risk) {
+        this.selectedRisk.set(risk.toUpperCase());
+      }
+      const sort = params.get('sort');
+      if (sort) {
+        this.sortBy.set(sort);
+      }
+      const search = params.get('search');
+      if (search) {
+        this.searchQuery.set(search);
+      }
+    });
+
     this.loadProjects();
+  }
+
+  navigateToProject(id: number): void {
+    this.router.navigate(['/projects', id]);
   }
 
   loadProjects(): void {

@@ -153,19 +153,21 @@
 
       <!-- Quick List of Visible Markers -->
       <div class="marker-list-section">
-        <h4 class="list-title">Mapped Projects ({{ markers().length }})</h4>
+        <h4 class="list-title">Mapped Risk Projects ({{ markers().length }})</h4>
         <div class="marker-list-scroll">
           @for (m of markers(); track m.id) {
             <div
               class="marker-list-item"
               [class.active]="selectedMarker()?.id === m.id"
-              (click)="selectMarkerFromList(m)"
+              (click)="navigateToProject(m.id)"
+              title="Click to open Project Details for {{ m.name }}"
             >
               <span class="status-indicator" [ngClass]="'ind-' + m.risk_level.toLowerCase()"></span>
               <div class="item-text">
                 <span class="item-title">{{ m.name }}</span>
                 <span class="item-sub">{{ m.district }} • +{{ m.predicted_delay_days }}d delay</span>
               </div>
+              <span class="list-nav-arrow" title="Inspect Project Details">&rarr;</span>
             </div>
           }
         </div>

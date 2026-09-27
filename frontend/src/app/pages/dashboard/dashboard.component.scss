@@ -85,11 +85,25 @@
   flex-direction: column;
   gap: 0.65rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  &.interactive-kpi {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15);
+      border-color: #818cf8;
+
+      .kpi-trend {
+        text-decoration: underline;
+      }
+    }
   }
 
   &.high-risk-card {
@@ -293,6 +307,18 @@
     flex-direction: column;
     gap: 0.35rem;
     position: relative;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+      .legend-impact {
+        color: #4f46e5;
+        font-weight: 600;
+      }
+    }
 
     .legend-indicator {
       width: 10px;
@@ -370,6 +396,13 @@
       border-radius: 6px;
       font-size: 0.78rem;
       font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover {
+        transform: translateX(3px);
+        filter: brightness(0.96);
+      }
 
       .dot {
         width: 8px;
@@ -484,6 +517,18 @@
   }
 }
 
+.code-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  display: inline-block;
+
+  &:hover .code-tag {
+    background: #e0e7ff;
+    color: #3730a3;
+  }
+}
+
 .code-tag {
   font-family: monospace;
   font-size: 0.78rem;
@@ -493,6 +538,7 @@
   padding: 0.2rem 0.45rem;
   border-radius: 4px;
   white-space: nowrap;
+  transition: background 0.15s ease;
 }
 
 .name-cell {
@@ -500,9 +546,21 @@
   flex-direction: column;
   gap: 0.15rem;
 
-  .project-title {
-    font-weight: 600;
-    color: #0f172a;
+  .project-name-link {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+
+    .project-title {
+      font-weight: 700;
+      color: #0f172a;
+      transition: color 0.15s ease;
+
+      &:hover {
+        color: #4f46e5;
+        text-decoration: underline;
+      }
+    }
   }
 
   .project-type-tag {

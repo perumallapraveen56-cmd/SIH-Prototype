@@ -1,6 +1,16 @@
 <div class="shap-page">
   <!-- Top Bar: Context Selector & Header -->
   <div class="page-header">
+    <div class="header-breadcrumb">
+      <a routerLink="/projects">Projects</a>
+      <span>/</span>
+      <a routerLink="/gis-map">GIS Map</a>
+      <span>/</span>
+      <a [routerLink]="['/projects', selectedProjectId()]">Project #{{ selectedProjectId() }}</a>
+      <span>/</span>
+      <span class="curr">SHAP Analysis</span>
+    </div>
+
     <div class="header-titles">
       <h1 class="page-title">AI Explainability & SHAP Feature Attribution</h1>
       <p class="page-desc">Interpretable Machine Learning decomposition identifying exact root cause drivers behind predicted delays</p>
@@ -138,22 +148,22 @@
       </div>
     </div>
 
-    <!-- Natural Language Explanation Card + What-If CTA (Requirement #13) -->
+    <!-- Natural Language Explanation Card + What-If CTA (Requirement #6: SHAP -> Explainable AI) -->
     <div class="explanation-callout-card">
       <div class="explanation-body">
         <div class="callout-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
         </div>
         <div class="explanation-text">
-          <h4 class="exp-title">Root Cause Decision Insight</h4>
+          <h4 class="exp-title">Root Cause Decision Insight • {{ shap.project_code }}</h4>
           <p class="exp-summary">{{ shap.explanation_summary }}</p>
         </div>
       </div>
 
       <div class="explanation-actions">
-        <button class="what-if-cta-btn" (click)="navigateToWhatIf()">
-          <span>View What-If Analysis & Recommendations</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        <button class="what-if-cta-btn" (click)="navigateToWhatIf()" id="btnProceedExplainableAi">
+          <span>Proceed to Explainable AI & What-If Mitigations</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       </div>
     </div>

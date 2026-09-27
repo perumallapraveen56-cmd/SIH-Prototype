@@ -68,6 +68,10 @@ export const routes: Routes = [
         component: WhatIfAnalysisComponent
       },
       {
+        path: 'explainable-ai',
+        component: WhatIfAnalysisComponent
+      },
+      {
         path: 'alerts',
         component: AlertsComponent
       },
