@@ -86,15 +86,23 @@ export class ProjectsListComponent implements OnInit {
       this.isCriticalOnly.set(!!data['criticalOnly']);
     });
 
-    // Support query parameters (e.g. /projects?risk=HIGH, /projects?sort=delay_desc)
+    // Support query parameters (e.g. /projects?risk=HIGH, /projects?sort=delay_desc, /projects?state=Maharashtra)
     this.route.queryParamMap.subscribe(params => {
       const risk = params.get('risk');
       if (risk) {
         this.selectedRisk.set(risk.toUpperCase());
       }
+      const state = params.get('state');
+      if (state) {
+        this.selectedState.set(state);
+      }
       const sort = params.get('sort');
       if (sort) {
-        this.sortBy.set(sort);
+        if (sort === 'cost') this.sortBy.set('cost_desc');
+        else if (sort === 'delay') this.sortBy.set('delay_desc');
+        else if (sort === 'risk') this.sortBy.set('risk_desc');
+        else if (sort === 'progress') this.sortBy.set('progress_asc');
+        else this.sortBy.set(sort);
       }
       const search = params.get('search');
       if (search) {

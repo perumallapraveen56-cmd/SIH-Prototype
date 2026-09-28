@@ -21,6 +21,7 @@ export class WhatIfAnalysisComponent implements OnInit {
   public financialImpact = signal<FinancialImpactResponse | null>(null);
   public allProjects = signal<ProjectSummary[]>([]);
   public selectedProjectId = signal<number>(1);
+  public isExplainableAiMode = signal<boolean>(false);
 
   // Intervention Sliders (0 - 100%)
   public compDelayPct = signal<number>(40);
@@ -49,11 +50,25 @@ export class WhatIfAnalysisComponent implements OnInit {
     this.route.queryParams.subscribe((params) => {
       const pId = params['projectId'] ? parseInt(params['projectId'], 10) : 1;
       this.selectedProjectId.set(pId);
-      this.loadAllData(pId);
+      const category = params['category'];
+      const preset = params['preset'];
+      this.loadAllData(pId, category, preset);
     });
   }
 
-  loadAllData(projectId: number): void {
+  navigateToShap(): void {
+    this.router.navigate(['/shap'], { queryParams: { projectId: this.selectedProjectId() } });
+  }
+
+  navigateToExplainableAi(): void {
+    this.router.navigate(['/explainable-ai'], { queryParams: { projectId: this.selectedProjectId() } });
+  }
+
+  navigateToProject(): void {
+    this.router.navigate(['/projects', this.selectedProjectId()]);
+  }
+
+  loadAllData(projectId: number, category?: string, preset?: string): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
@@ -69,7 +84,61 @@ export class WhatIfAnalysisComponent implements OnInit {
       error: () => {}
     });
 
-    // 3. Initial Baseline Simulation
+    // 3. Apply category or preset if requested
+    if (preset) {
+      this.applyPreset(preset as any);
+    } else if (category) {
+      this.applyCategoryPreset(category);
+    } else {
+      this.runSimulation();
+    }
+  }
+
+  applyRecommendation(r: any): void {
+    if (!r) return;
+    const cat = (r.category || '').toLowerCase();
+    const title = (r.title || '').toLowerCase();
+
+    if (cat.includes('comp') || title.includes('comp') || title.includes('award') || title.includes('disburs')) {
+      this.compDelayPct.set(Math.min(100, Math.max(60, this.compDelayPct() + 25)));
+    } else if (cat.includes('legal') || cat.includes('dispute') || title.includes('court') || title.includes('lok adalat') || title.includes('dispute')) {
+      this.legalDisputesPct.set(Math.min(100, Math.max(50, this.legalDisputesPct() + 25)));
+    } else if (cat.includes('approv') || cat.includes('forest') || cat.includes('clear') || title.includes('clearance') || title.includes('forest')) {
+      this.approvalsExpeditedPct.set(Math.min(100, Math.max(55, this.approvalsExpeditedPct() + 25)));
+    } else if (cat.includes('r&r') || cat.includes('rehab') || title.includes('resettlement') || title.includes('r&r')) {
+      this.rrProgressPct.set(Math.min(100, Math.max(45, this.rrProgressPct() + 25)));
+    } else if (cat.includes('doc') || cat.includes('survey') || cat.includes('record') || title.includes('mutation') || title.includes('cadastr')) {
+      this.docStreamlinePct.set(Math.min(100, Math.max(45, this.docStreamlinePct() + 25)));
+    } else {
+      this.compDelayPct.set(Math.min(100, Math.max(50, this.compDelayPct() + 20)));
+      this.approvalsExpeditedPct.set(Math.min(100, Math.max(45, this.approvalsExpeditedPct() + 20)));
+    }
+
+    this.runSimulation();
+  }
+
+  applyCategoryPreset(category: string): void {
+    const cat = category.toLowerCase();
+    if (cat.includes('comp') || cat.includes('disburs')) {
+      this.compDelayPct.set(70);
+      this.legalDisputesPct.set(30);
+      this.approvalsExpeditedPct.set(40);
+    } else if (cat.includes('legal') || cat.includes('dispute')) {
+      this.compDelayPct.set(40);
+      this.legalDisputesPct.set(65);
+      this.approvalsExpeditedPct.set(35);
+    } else if (cat.includes('approv') || cat.includes('forest') || cat.includes('clear')) {
+      this.approvalsExpeditedPct.set(65);
+      this.compDelayPct.set(45);
+      this.rrProgressPct.set(30);
+    } else if (cat.includes('r&r') || cat.includes('rehab')) {
+      this.rrProgressPct.set(60);
+      this.compDelayPct.set(50);
+      this.docStreamlinePct.set(30);
+    } else if (cat.includes('doc') || cat.includes('record')) {
+      this.docStreamlinePct.set(60);
+      this.compDelayPct.set(40);
+    }
     this.runSimulation();
   }
 

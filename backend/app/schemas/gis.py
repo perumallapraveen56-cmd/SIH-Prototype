@@ -1,7 +1,9 @@
-from typing import Optional
-from pydantic import BaseModel
+from typing import Optional, List
+from pydantic import BaseModel, ConfigDict
 
 class ProjectGISMarker(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     project_code: str
     name: str
@@ -16,11 +18,8 @@ class ProjectGISMarker(BaseModel):
     acquisition_progress: float
     status: str
 
-    class Config:
-        from_attributes = True
-
 class GISFilterOptions(BaseModel):
-    states: list[str]
-    districts: list[str]
-    project_types: list[str]
-    risk_levels: list[str]
+    states: List[str]
+    districts: List[str]
+    project_types: List[str]
+    risk_levels: List[str]

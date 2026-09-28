@@ -6,9 +6,14 @@
       <p class="description">Generate, preview, and export official delay risk assessments, statutory LARR compliance reports, and AI explainability audits.</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-outline" (click)="loadProjects()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-        Refresh Data
+      <button class="btn btn-outline" [disabled]="isRefreshing() || isLoading()" (click)="refreshData()" title="Re-fetch latest reports and project data">
+        @if (isRefreshing()) {
+          <span class="spinner"></span>
+          <span>Refreshing...</span>
+        } @else {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          <span>Refresh Data</span>
+        }
       </button>
     </div>
   </div>
@@ -176,8 +181,12 @@
           <tbody>
             @for (p of projects(); track p.id) {
               <tr>
-                <td class="font-mono font-bold">{{ p.project_code }}</td>
-                <td>{{ p.name }}</td>
+                <td class="font-mono font-bold">
+                  <a [routerLink]="['/projects', p.id]" class="project-link font-mono font-bold" [title]="'View Details for ' + p.project_code">{{ p.project_code }}</a>
+                </td>
+                <td>
+                  <a [routerLink]="['/projects', p.id]" class="project-link font-bold" [title]="'View Details for ' + p.name">{{ p.name }}</a>
+                </td>
                 <td>{{ p.district }}, {{ p.state }}</td>
                 <td>
                   <span class="badge" [class.badge-danger]="p.risk_level === 'HIGH'" [class.badge-warning]="p.risk_level === 'MEDIUM'" [class.badge-success]="p.risk_level === 'LOW'">

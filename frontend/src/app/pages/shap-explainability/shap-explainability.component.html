@@ -8,7 +8,9 @@
       <span>/</span>
       <a [routerLink]="['/projects', selectedProjectId()]">Project #{{ selectedProjectId() }}</a>
       <span>/</span>
-      <span class="curr">SHAP Analysis</span>
+      <a routerLink="/what-if" [queryParams]="{ projectId: selectedProjectId() }">AI Simulation</a>
+      <span>/</span>
+      <span class="curr">SHAP Explainability</span>
     </div>
 
     <div class="header-titles">
@@ -26,6 +28,31 @@
           </option>
         }
       </select>
+    </div>
+  </div>
+
+  <!-- Pipeline Progress Flow (Step 3 of 4: SHAP Explainability Active) -->
+  <div class="pipeline-progress-bar">
+    <span class="pipe-label">Decision Pipeline:</span>
+    <div class="pipe-steps">
+      <a [routerLink]="['/projects', selectedProjectId()]" class="step-pill done">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>1. Project Details</span>
+      </a>
+      <span class="step-arrow">&rarr;</span>
+      <a routerLink="/what-if" [queryParams]="{ projectId: selectedProjectId() }" class="step-pill done">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>2. AI Simulate</span>
+      </a>
+      <span class="step-arrow">&rarr;</span>
+      <span class="step-pill active">
+        <span class="active-dot"></span>
+        <span>3. SHAP Explainability</span>
+      </span>
+      <span class="step-arrow">&rarr;</span>
+      <button type="button" class="step-pill next" (click)="navigateToExplainableAi()">
+        <span>4. Explainable AI View</span>
+      </button>
     </div>
   </div>
 
@@ -161,8 +188,8 @@
       </div>
 
       <div class="explanation-actions">
-        <button class="what-if-cta-btn" (click)="navigateToWhatIf()" id="btnProceedExplainableAi">
-          <span>Proceed to Explainable AI & What-If Mitigations</span>
+        <button class="what-if-cta-btn" (click)="navigateToExplainableAi()" id="btnProceedExplainableAi">
+          <span>Proceed to Explainable AI View</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       </div>

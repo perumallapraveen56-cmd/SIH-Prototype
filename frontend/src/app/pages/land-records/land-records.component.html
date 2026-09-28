@@ -6,12 +6,53 @@
       <p class="description">Live monitoring of survey khasras, statutory acquisition stages under RFCTLARR Act 2013, and litigation bottlenecks.</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-outline" (click)="loadData()">
+      <div class="scope-toggle-group">
+        <button
+          type="button"
+          class="btn"
+          [class.btn-primary]="!isMyParcelsOnly()"
+          [class.btn-outline]="isMyParcelsOnly()"
+          (click)="setMyParcelsOnly(false)"
+          title="Show all monitored land parcels nationwide"
+        >
+          All Monitored Parcels
+        </button>
+        <button
+          type="button"
+          class="btn"
+          [class.btn-primary]="isMyParcelsOnly()"
+          [class.btn-outline]="!isMyParcelsOnly()"
+          (click)="setMyParcelsOnly(true)"
+          title="Filter parcels assigned to current officer jurisdiction"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span>My Parcels</span>
+        </button>
+      </div>
+
+      <button class="btn btn-outline" (click)="loadData()" title="Sync cadastral records">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
         Sync Records
       </button>
     </div>
   </div>
+
+  @if (isMyParcelsOnly()) {
+    <div class="my-parcels-banner">
+      <div class="banner-left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span>
+          <strong>Officer Jurisdiction Filter Active:</strong>
+          Displaying cadastral survey parcels assigned to <strong>{{ authService.currentUser()?.full_name || 'Revenue Officer' }}</strong> (Uttar Pradesh / Gautam Buddha Nagar jurisdiction).
+        </span>
+      </div>
+      <button class="btn btn-sm btn-outline" (click)="setMyParcelsOnly(false)">Show All Parcels</button>
+    </div>
+  }
 
   @if (errorMessage()) {
     <div class="alert alert-danger">
@@ -22,47 +63,47 @@
 
   <!-- KPI Metrics Ribbon -->
   <div class="kpi-grid">
-    <div class="kpi-card">
+    <div class="kpi-card clickable" (click)="filterAll()" role="button" tabindex="0" title="Click to show all monitored parcels">
       <div class="kpi-icon-box bg-blue">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
       </div>
       <div class="kpi-content">
-        <span class="kpi-title">Monitored Parcels</span>
+        <span class="kpi-title">{{ isMyParcelsOnly() ? 'Assigned Parcels' : 'Monitored Parcels' }}</span>
         <span class="kpi-value">{{ totalParcelsCount() }}</span>
-        <span class="kpi-sub">Across 12 Major Projects</span>
+        <span class="kpi-sub">{{ isMyParcelsOnly() ? 'In Officer Jurisdiction \u2192' : 'Across 12 Major Projects \u2192' }}</span>
       </div>
     </div>
 
-    <div class="kpi-card">
+    <div class="kpi-card clickable" (click)="filterDisputed()" role="button" tabindex="0" title="Click to filter disputed parcels">
       <div class="kpi-icon-box bg-red">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
       </div>
       <div class="kpi-content">
         <span class="kpi-title">In Litigation / Dispute</span>
         <span class="kpi-value text-danger">{{ disputedParcelsCount() }}</span>
-        <span class="kpi-sub">Court writs or boundary claims</span>
+        <span class="kpi-sub">Court writs or boundary claims &rarr;</span>
       </div>
     </div>
 
-    <div class="kpi-card">
+    <div class="kpi-card clickable" (click)="filterClear()" role="button" tabindex="0" title="Click to filter clear parcels">
       <div class="kpi-icon-box bg-green">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
       </div>
       <div class="kpi-content">
         <span class="kpi-title">Possession Ready / Clear</span>
         <span class="kpi-value text-success">{{ clearParcelsCount() }}</span>
-        <span class="kpi-sub">Ready for contractor handover</span>
+        <span class="kpi-sub">Ready for contractor handover &rarr;</span>
       </div>
     </div>
 
-    <div class="kpi-card">
+    <div class="kpi-card clickable" (click)="filterInProgress()" role="button" tabindex="0" title="Click to filter parcels in active acquisition">
       <div class="kpi-icon-box bg-purple">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
       </div>
       <div class="kpi-content">
-        <span class="kpi-title">Total Monitored Area</span>
-        <span class="kpi-value">{{ totalAreaHa() }} Ha</span>
-        <span class="kpi-sub">Cadastral survey coverage</span>
+        <span class="kpi-title">Acquisition In Progress</span>
+        <span class="kpi-value">{{ inProgressParcelsCount() }}</span>
+        <span class="kpi-sub">{{ totalAreaHa() }} Ha surveyed &rarr;</span>
       </div>
     </div>
   </div>
@@ -113,8 +154,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
         </span>
         <div>
-          <h3>Cadastral Land Parcels Inventory ({{ filteredParcels().length }} records)</h3>
-          <p>Detailed cadastral survey records with RFCTLARR acquisition milestones</p>
+          <h3>Cadastral Land Parcels Inventory ({{ filteredParcels().length }} {{ isMyParcelsOnly() ? 'assigned ' : '' }}records)</h3>
+          <p>{{ isMyParcelsOnly() ? 'Survey parcels assigned to your revenue jurisdiction with active RFCTLARR acquisition milestones' : 'Detailed cadastral survey records with RFCTLARR acquisition milestones' }}</p>
         </div>
       </div>
     </div>
@@ -143,13 +184,15 @@
             </thead>
             <tbody>
               @for (p of filteredParcels(); track p.parcel_id) {
-                <tr>
+                <tr class="clickable-row" (click)="openParcelDetails(p)" [title]="'Inspect ' + p.parcel_id">
                   <td>
                     <strong class="font-mono text-primary">{{ p.parcel_id }}</strong>
                     <div class="text-muted small">Khasra No: {{ p.khasra_no }}</div>
                   </td>
                   <td>
-                    <div class="font-bold">{{ p.project_name }}</div>
+                    <a [routerLink]="['/projects', p.project_id]" class="project-link font-bold" (click)="$event.stopPropagation()" [title]="'View Details for ' + p.project_name">
+                      {{ p.project_name }}
+                    </a>
                     <div class="text-muted small">{{ p.village }}, {{ p.district }}, {{ p.state }}</div>
                   </td>
                   <td>
@@ -179,8 +222,11 @@
                     </span>
                   </td>
                   <td class="text-right">
-                    <button class="btn btn-sm btn-outline" (click)="openParcelDetails(p)">
+                    <button class="btn btn-sm btn-outline" (click)="openParcelDetails(p); $event.stopPropagation()">
                       Inspect
+                    </button>
+                    <button class="btn btn-sm btn-outline btn-gis-mini" (click)="openParcelOnGis(p, $event)" title="View Project Corridor on GIS Map">
+                      GIS
                     </button>
                   </td>
                 </tr>
@@ -284,6 +330,10 @@
         </div>
 
         <div class="drawer-footer">
+          <button class="btn btn-outline" (click)="openParcelOnGis(selectedParcel()!)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+            <span>View on GIS Map</span>
+          </button>
           <a [routerLink]="['/projects', selectedParcel()!.project_id]" (click)="closeParcelDetails()" class="btn btn-primary">
             View Project Details
           </a>

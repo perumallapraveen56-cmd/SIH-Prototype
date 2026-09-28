@@ -1,8 +1,10 @@
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from app.schemas.risk import RiskPredictionItem, RiskFactorItem
 
 class ProjectSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     project_code: str
     name: str
@@ -17,10 +19,9 @@ class ProjectSummary(BaseModel):
     predicted_delay_days: int
     daily_delay_cost_lakhs: float
 
-    class Config:
-        from_attributes = True
-
 class ProjectDetail(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     project_code: str
     name: str
@@ -50,6 +51,3 @@ class ProjectDetail(BaseModel):
     
     risk_prediction: Optional[RiskPredictionItem] = None
     top_risk_factors: List[RiskFactorItem] = []
-
-    class Config:
-        from_attributes = True

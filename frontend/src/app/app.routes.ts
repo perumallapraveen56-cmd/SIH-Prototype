@@ -7,8 +7,10 @@ import { ProjectsListComponent } from './pages/projects-list/projects-list.compo
 import { ProjectDetailsComponent } from './pages/project-details/project-details.component';
 import { GisMapComponent } from './pages/gis-map/gis-map.component';
 import { AnalyticsComponent } from './pages/analytics/analytics.component';
+import { RiskAnalysisComponent } from './pages/risk-analysis/risk-analysis.component';
 import { ShapExplainabilityComponent } from './pages/shap-explainability/shap-explainability.component';
 import { WhatIfAnalysisComponent } from './pages/what-if-analysis/what-if-analysis.component';
+import { ExplainableAiComponent } from './pages/explainable-ai/explainable-ai.component';
 import { AlertsComponent } from './pages/alerts/alerts.component';
 import { ReportsComponent } from './pages/reports/reports.component';
 import { LandRecordsComponent } from './pages/land-records/land-records.component';
@@ -53,7 +55,7 @@ export const routes: Routes = [
       },
       {
         path: 'risk-analysis',
-        component: AnalyticsComponent
+        component: RiskAnalysisComponent
       },
       {
         path: 'analytics',
@@ -69,7 +71,7 @@ export const routes: Routes = [
       },
       {
         path: 'explainable-ai',
-        component: WhatIfAnalysisComponent
+        component: ExplainableAiComponent
       },
       {
         path: 'alerts',

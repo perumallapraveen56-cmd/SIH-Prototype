@@ -1,7 +1,9 @@
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 class RiskFactorItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: Optional[int] = None
     factor_name: str
     contribution_pct: float
@@ -9,19 +11,15 @@ class RiskFactorItem(BaseModel):
     metric_value: Optional[str] = None
     details: Optional[str] = None
 
-    class Config:
-        from_attributes = True
-
 class RiskPredictionItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     risk_score: float
     risk_level: str  # HIGH, MEDIUM, LOW
     predicted_delay_days: int
     delay_confidence_interval: Optional[str] = None
     confidence_score: float
     model_name: str
-
-    class Config:
-        from_attributes = True
 
 class DashboardKPISummary(BaseModel):
     total_projects: int

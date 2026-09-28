@@ -1,7 +1,9 @@
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 class RecommendationItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     category: str
     title: str
@@ -11,9 +13,6 @@ class RecommendationItem(BaseModel):
     potential_cost_savings_cr: float
     action_steps: List[str]
     status: str
-
-    class Config:
-        from_attributes = True
 
 class RecommendationListResponse(BaseModel):
     project_id: int

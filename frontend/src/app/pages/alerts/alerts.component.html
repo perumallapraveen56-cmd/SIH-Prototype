@@ -74,7 +74,9 @@
 
           <div class="alert-main-content">
             <div class="project-header-row">
-              <h3 class="alert-project-title">{{ a.project_name }}</h3>
+              <a [routerLink]="['/projects', a.project_id]" class="alert-project-title-link" [title]="'View Details for ' + a.project_name">
+                <h3 class="alert-project-title">{{ a.project_name }}</h3>
+              </a>
               <span class="alert-district">{{ a.district }}</span>
             </div>
 
@@ -82,8 +84,8 @@
               <strong>Risk Reason:</strong> {{ a.reason }}
             </p>
 
-            <div class="alert-recommendation-box">
-              <span class="rec-label">Recommended Action:</span>
+            <div class="alert-recommendation-box clickable" [routerLink]="['/what-if']" [queryParams]="{ projectId: a.project_id }" role="button" tabindex="0" title="Click to Simulate Interventions in What-If for this corridor">
+              <span class="rec-label">Recommended Action (Click to Simulate):</span>
               <p class="rec-action-text">{{ a.recommended_action }}</p>
             </div>
           </div>
@@ -104,6 +106,16 @@
             </div>
 
             <div class="alert-btns">
+              <a [routerLink]="['/what-if']" [queryParams]="{ projectId: a.project_id }" class="btn-sm btn-simulate" title="Simulate Intervention in What-If">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <span>Simulate Intervention</span>
+              </a>
+
+              <a [routerLink]="['/explainable-ai']" [queryParams]="{ projectId: a.project_id }" class="btn-sm btn-action-plan" title="View Explainable AI Action Plan">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <span>Action Plan</span>
+              </a>
+
               <a [routerLink]="['/projects', a.project_id]" class="inspect-btn">
                 <span>Inspect Corridor</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>

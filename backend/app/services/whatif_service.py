@@ -73,7 +73,7 @@ def simulate_what_if_scenario(db: Session, project_id: int, req: WhatIfRequest) 
     sim_record = WhatIfSimulation(
         project_id=p.id,
         scenario_name="Custom Intervention Simulation",
-        input_params_json=json.dumps(req.dict()),
+        input_params_json=json.dumps(req.model_dump()),
         baseline_risk=baseline_risk,
         simulated_risk=simulated_risk,
         baseline_delay_days=baseline_delay,

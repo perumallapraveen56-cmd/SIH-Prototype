@@ -70,6 +70,12 @@ export class ShapExplainabilityComponent implements OnInit {
     this.loadShap(newId);
   }
 
+  navigateToExplainableAi(): void {
+    const data = this.shapData();
+    const pId = data ? data.project_id : this.selectedProjectId();
+    this.router.navigate(['/explainable-ai'], { queryParams: { projectId: pId } });
+  }
+
   navigateToWhatIf(): void {
     const data = this.shapData();
     const pId = data ? data.project_id : this.selectedProjectId();

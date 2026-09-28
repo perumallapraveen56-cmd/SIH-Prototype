@@ -1,6 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
 import { ProjectSummary } from '../../core/models/project.model';
 import { ReportGenerateRequest, ReportSummaryItem } from '../../core/models/report.model';
@@ -8,7 +9,7 @@ import { ReportGenerateRequest, ReportSummaryItem } from '../../core/models/repo
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.scss'
 })
@@ -16,6 +17,7 @@ export class ReportsComponent implements OnInit {
   projects = signal<ProjectSummary[]>([]);
   isLoading = signal<boolean>(false);
   isDownloading = signal<boolean>(false);
+  isRefreshing = signal<boolean>(false);
   successMessage = signal<string>('');
   errorMessage = signal<string>('');
   activePreview = signal<any | null>(null);
@@ -82,14 +84,43 @@ export class ReportsComponent implements OnInit {
   }
 
   loadProjects(): void {
+    const curId = this.selectedProjectId;
     this.apiService.getProjects().subscribe({
       next: (data) => {
         this.projects.set(data);
-        if (data.length > 0) {
+        if (data.some(p => p.id === curId)) {
+          this.selectedProjectId = curId;
+        } else if (data.length > 0) {
           this.selectedProjectId = data[0].id;
         }
       },
       error: (err) => console.warn('Could not load projects for reports:', err)
+    });
+  }
+
+  refreshData(): void {
+    if (this.isRefreshing()) return;
+    this.isRefreshing.set(true);
+    this.errorMessage.set('');
+
+    const curId = this.selectedProjectId;
+    this.apiService.getProjects().subscribe({
+      next: (data) => {
+        this.projects.set(data);
+        if (data.some(p => p.id === curId)) {
+          this.selectedProjectId = curId;
+        } else if (data.length > 0) {
+          this.selectedProjectId = data[0].id;
+        }
+        this.isRefreshing.set(false);
+        this.successMessage.set('Report catalog and project data refreshed successfully from the backend database.');
+        setTimeout(() => this.successMessage.set(''), 4000);
+      },
+      error: (err) => {
+        this.isRefreshing.set(false);
+        this.errorMessage.set('Failed to refresh report data from backend server.');
+        setTimeout(() => this.errorMessage.set(''), 5000);
+      }
     });
   }
 
@@ -108,25 +139,20 @@ export class ReportsComponent implements OnInit {
 
     if (this.selectedFormat === 'pdf') {
       this.isDownloading.set(true);
-      // Trigger PDF streaming download
+      // Trigger PDF streaming download as Blob
       this.apiService.generateReport(req).subscribe({
-        next: (response: any) => {
+        next: (blob: Blob) => {
           this.isLoading.set(false);
           this.isDownloading.set(false);
+          const filename = `${this.selectedReportType.toLowerCase()}_report_${Date.now()}.pdf`;
+          this.triggerBlobDownload(blob, filename);
           this.successMessage.set(`Official PDF report for ${this.selectedReportType} successfully generated and downloaded.`);
           setTimeout(() => this.successMessage.set(''), 6000);
         },
         error: (err) => {
           this.isLoading.set(false);
           this.isDownloading.set(false);
-          // If error occurs, fallback to direct download URL
-          if (req.project_id) {
-            window.open(this.apiService.downloadProjectReportPdfUrl(req.project_id), '_blank');
-            this.successMessage.set('Report PDF generated and opened in new window.');
-            setTimeout(() => this.successMessage.set(''), 5000);
-          } else {
-            this.errorMessage.set('Failed to generate report. Please ensure the backend server is active.');
-          }
+          this.errorMessage.set('Failed to generate report. Please ensure the backend server is active.');
         }
       });
     } else {
@@ -147,7 +173,31 @@ export class ReportsComponent implements OnInit {
   }
 
   downloadDirectProjectPdf(projectId: number): void {
-    window.open(this.apiService.downloadProjectReportPdfUrl(projectId), '_blank');
+    this.isDownloading.set(true);
+    this.apiService.downloadProjectReportPdf(projectId).subscribe({
+      next: (blob: Blob) => {
+        this.isDownloading.set(false);
+        const filename = `Project_Risk_Report_PRJ_${projectId}.pdf`;
+        this.triggerBlobDownload(blob, filename);
+        this.successMessage.set(`Project #${projectId} PDF report downloaded successfully.`);
+        setTimeout(() => this.successMessage.set(''), 5000);
+      },
+      error: () => {
+        this.isDownloading.set(false);
+        this.errorMessage.set(`Could not generate PDF for Project #${projectId}.`);
+      }
+    });
+  }
+
+  private triggerBlobDownload(blob: Blob, filename: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   }
 
   viewArchivedReport(report: ReportSummaryItem): void {

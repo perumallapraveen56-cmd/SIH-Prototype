@@ -61,6 +61,10 @@ export class ProjectDetailsComponent implements OnInit {
     }
   }
 
+  navigateToSimulate(): void {
+    this.navigateToWhatIf();
+  }
+
   downloadPdfReport(): void {
     const p = this.project();
     if (!p) return;

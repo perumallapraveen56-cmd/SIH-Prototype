@@ -8,25 +8,31 @@
       <span>/</span>
       <a [routerLink]="['/projects', selectedProjectId()]">Project #{{ selectedProjectId() }}</a>
       <span>/</span>
-      <a routerLink="/shap" [queryParams]="{ projectId: selectedProjectId() }">SHAP Analysis</a>
-      <span>/</span>
-      <span class="curr">Explainable AI</span>
+      <span class="curr">AI Simulation</span>
     </div>
 
     <div class="header-titles">
-      <h1 class="page-title">Explainable AI & What-If Scenario Simulator</h1>
+      <h1 class="page-title">AI Simulation & What-If Scenario Optimizer</h1>
       <p class="page-desc">Data-driven policy interventions, root-cause mitigations, and schedule recovery quantified by backend ML models</p>
     </div>
 
-    <div class="project-selector-box">
-      <label>Selected Corridor:</label>
-      <select [ngModel]="selectedProjectId()" (ngModelChange)="onProjectChange($event)" class="project-select">
-        @for (p of allProjects(); track p.id) {
-          <option [value]="p.id">
-            {{ p.project_code }} - {{ p.name }}
-          </option>
-        }
-      </select>
+    <div class="header-controls-wrap">
+      <div class="project-selector-box">
+        <label>Selected Corridor:</label>
+        <select [ngModel]="selectedProjectId()" (ngModelChange)="onProjectChange($event)" class="project-select">
+          @for (p of allProjects(); track p.id) {
+            <option [value]="p.id">
+              {{ p.project_code }} - {{ p.name }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <button type="button" class="btn-quick-nav-shap" (click)="navigateToShap()" id="btnHeaderShap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path><path d="M9.5 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"></path></svg>
+        <span>AI Explainability (SHAP)</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
     </div>
   </div>
 
@@ -262,6 +268,24 @@
       </div>
     </div>
 
+    <!-- WORKFLOW NAVIGATION BANNER: Step 1 (Simulate) -> Step 2 (SHAP) -->
+    <div class="step-nav-banner">
+      <div class="step-nav-left">
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path><path d="M9.5 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"></path></svg>
+        </div>
+        <div class="step-text">
+          <span class="step-tag">Next Step in Workflow</span>
+          <h4>TreeSHAP Root-Cause Feature Attribution</h4>
+          <p>Inspect exact game-theoretic Shapley additive feature drivers behind Corridor #{{ selectedProjectId() }}'s predicted delay risk score.</p>
+        </div>
+      </div>
+      <button type="button" class="btn-step-cta" (click)="navigateToShap()" id="btnProceedToShap">
+        <span>Proceed to SHAP Explainability</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    </div>
+
     <!-- FINANCIAL IMPACT ANALYSIS SECTION (Requirement #15) -->
     @if (financialImpact(); as fin) {
       <div class="financial-card">
@@ -338,10 +362,52 @@
                   </ol>
                 </div>
               }
+
+              <div class="rec-apply-row">
+                <button type="button" class="btn-apply-rec" (click)="applyRecommendation(r)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Apply Recommendation to Levers & Re-simulate</span>
+                </button>
+              </div>
             </div>
           }
         </div>
       </div>
     }
+
+    <!-- BOTTOM WORKFLOW PIPELINE BAR -->
+    <div class="bottom-pipeline-nav">
+      <div class="pipeline-flow-info">
+        <span class="flow-title">Pipeline Progress:</span>
+        <div class="flow-steps">
+          <a [routerLink]="['/projects', selectedProjectId()]" class="flow-step done">
+            <span>1. Project Details</span>
+          </a>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="flow-step current">
+            <span>2. AI Simulate</span>
+          </span>
+          <span class="flow-arrow">&rarr;</span>
+          <a routerLink="/shap" [queryParams]="{ projectId: selectedProjectId() }" class="flow-step">
+            <span>3. SHAP Explainability</span>
+          </a>
+          <span class="flow-arrow">&rarr;</span>
+          <a routerLink="/explainable-ai" [queryParams]="{ projectId: selectedProjectId() }" class="flow-step">
+            <span>4. Explainable AI View</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="pipeline-actions-group">
+        <button type="button" class="btn-secondary-cta" (click)="navigateToShap()" id="btnBottomProceedShap">
+          <span>SHAP Explainability</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+        <button type="button" class="btn-bottom-cta" (click)="navigateToProject()" id="btnReturnToProject">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          <span>Review & Return to Project Details</span>
+        </button>
+      </div>
+    </div>
   }
 </div>

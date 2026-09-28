@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { SoundService } from '../../core/services/sound.service';
 import { ApiService } from '../../core/services/api.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-settings',
@@ -13,6 +14,7 @@ import { ApiService } from '../../core/services/api.service';
   styleUrl: './settings.component.scss'
 })
 export class SettingsComponent implements OnInit {
+  apiUrl = environment.apiUrl;
   soundEnabled = signal<boolean>(true);
   toastEnabled = signal<boolean>(true);
   isTestingSound = signal<boolean>(false);
@@ -81,7 +83,7 @@ export class SettingsComponent implements OnInit {
 
   checkSystemHealth(): void {
     this.isCheckingHealth.set(true);
-    fetch('http://localhost:8000/api/health')
+    fetch(`${this.apiUrl}/health`)
       .then(res => res.json())
       .then(data => {
         this.healthStatus.set('CONNECTED (Database Online, ML Engine Active)');

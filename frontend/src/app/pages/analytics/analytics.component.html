@@ -1,9 +1,9 @@
 <div class="analytics-page">
   <div class="page-header">
     <div class="header-left">
-      <span class="sub-heading">PORTFOLIO MACRO ANALYTICS • NATIONAL INFRASTRUCTURE MONITORING</span>
-      <h1>Risk Analysis & Delay Analytics Engine</h1>
-      <p class="description">Aggregated risk distributions, state corridor delay exposures, and systemic statutory bottleneck trends.</p>
+      <span class="sub-heading">PORTFOLIO MACRO ANALYTICS • SYSTEM-WIDE TRENDS</span>
+      <h1>Portfolio Macro Analytics & Delay Trends</h1>
+      <p class="description">System-wide aggregates, state corridor delay exposures, macro risk distributions, and systemic statutory bottleneck trends across monitored assets.</p>
     </div>
     <div class="header-actions">
       <button class="btn btn-outline" (click)="loadAnalytics()">
@@ -22,28 +22,28 @@
 
   <!-- KPI Cards -->
   <div class="kpi-grid">
-    <div class="kpi-card">
+    <div class="kpi-card clickable" routerLink="/projects" role="button" tabindex="0" title="Click to view all monitored projects">
       <span class="kpi-title">Total Monitored Projects</span>
       <span class="kpi-value">{{ kpis()?.total_projects || projects().length }}</span>
-      <span class="kpi-sub">Across 8 States & UTs</span>
+      <span class="kpi-sub">Across 8 States & UTs &rarr;</span>
     </div>
 
-    <div class="kpi-card">
+    <div class="kpi-card clickable" routerLink="/projects" [queryParams]="{ risk: 'HIGH' }" role="button" tabindex="0" title="Click to filter High Risk projects">
       <span class="kpi-title">High Delay Risk Projects</span>
       <span class="kpi-value text-danger">{{ kpis()?.high_risk_projects || 5 }}</span>
-      <span class="kpi-sub">Requiring immediate SLAO action</span>
+      <span class="kpi-sub">Requiring immediate SLAO action &rarr;</span>
     </div>
 
-    <div class="kpi-card">
+    <div class="kpi-card clickable" routerLink="/projects" [queryParams]="{ sort: 'delay_desc' }" role="button" tabindex="0" title="Click to view projects sorted by predicted delay">
       <span class="kpi-title">Average Predicted Delay</span>
       <span class="kpi-value text-warning">{{ kpis()?.average_predicted_delay_days || 69.8 }} Days</span>
-      <span class="kpi-sub">Across all corridors</span>
+      <span class="kpi-sub">Across all corridors &rarr;</span>
     </div>
 
-    <div class="kpi-card">
+    <div class="kpi-card clickable" routerLink="/projects" [queryParams]="{ sort: 'cost_desc' }" role="button" tabindex="0" title="Click to view projects sorted by cost exposure">
       <span class="kpi-title">Total Cost Exposure</span>
       <span class="kpi-value font-mono">₹{{ totalPortfolioExposureCr() }} Cr</span>
-      <span class="kpi-sub">Cumulative daily delay burn rate</span>
+      <span class="kpi-sub">Cumulative daily delay burn rate &rarr;</span>
     </div>
   </div>
 
@@ -66,34 +66,34 @@
       <div class="card-body">
         <div class="dist-bar-container">
           <div class="dist-bar">
-            <div class="bar-segment high" [style.width.%]="chartData()?.high_risk_pct || 41.7"></div>
-            <div class="bar-segment med" [style.width.%]="chartData()?.medium_risk_pct || 33.3"></div>
-            <div class="bar-segment low" [style.width.%]="chartData()?.low_risk_pct || 25.0"></div>
+            <div class="bar-segment high clickable" routerLink="/projects" [queryParams]="{ risk: 'HIGH' }" role="button" tabindex="0" title="View High Risk projects" [style.width.%]="chartData()?.high_risk_pct || 41.7"></div>
+            <div class="bar-segment med clickable" routerLink="/projects" [queryParams]="{ risk: 'MEDIUM' }" role="button" tabindex="0" title="View Medium Risk projects" [style.width.%]="chartData()?.medium_risk_pct || 33.3"></div>
+            <div class="bar-segment low clickable" routerLink="/projects" [queryParams]="{ risk: 'LOW' }" role="button" tabindex="0" title="View Low Risk projects" [style.width.%]="chartData()?.low_risk_pct || 25.0"></div>
           </div>
         </div>
 
         <div class="dist-legend">
-          <div class="legend-item">
+          <div class="legend-item clickable" routerLink="/projects" [queryParams]="{ risk: 'HIGH' }" role="button" tabindex="0" title="Filter High Risk projects">
             <span class="color-dot bg-danger"></span>
             <div class="legend-details">
               <strong>High Risk</strong>
-              <span>{{ chartData()?.high_risk_count || 5 }} Projects ({{ chartData()?.high_risk_pct || 41.7 }}%)</span>
+              <span>{{ chartData()?.high_risk_count || 5 }} Projects ({{ chartData()?.high_risk_pct || 41.7 }}%) &rarr;</span>
             </div>
           </div>
 
-          <div class="legend-item">
+          <div class="legend-item clickable" routerLink="/projects" [queryParams]="{ risk: 'MEDIUM' }" role="button" tabindex="0" title="Filter Medium Risk projects">
             <span class="color-dot bg-warning"></span>
             <div class="legend-details">
               <strong>Medium Risk</strong>
-              <span>{{ chartData()?.medium_risk_count || 4 }} Projects ({{ chartData()?.medium_risk_pct || 33.3 }}%)</span>
+              <span>{{ chartData()?.medium_risk_count || 4 }} Projects ({{ chartData()?.medium_risk_pct || 33.3 }}%) &rarr;</span>
             </div>
           </div>
 
-          <div class="legend-item">
+          <div class="legend-item clickable" routerLink="/projects" [queryParams]="{ risk: 'LOW' }" role="button" tabindex="0" title="Filter Low Risk projects">
             <span class="color-dot bg-success"></span>
             <div class="legend-details">
               <strong>Low Risk</strong>
-              <span>{{ chartData()?.low_risk_count || 3 }} Projects ({{ chartData()?.low_risk_pct || 25.0 }}%)</span>
+              <span>{{ chartData()?.low_risk_count || 3 }} Projects ({{ chartData()?.low_risk_pct || 25.0 }}%) &rarr;</span>
             </div>
           </div>
         </div>
@@ -169,8 +169,8 @@
           </thead>
           <tbody>
             @for (s of stateBreakdown(); track s.state) {
-              <tr>
-                <td><strong>{{ s.state }}</strong></td>
+              <tr class="clickable-state-row" [routerLink]="['/gis-map']" [queryParams]="{ state: s.state }" role="button" tabindex="0" [title]="'View ' + s.state + ' on GIS Map'">
+                <td><a [routerLink]="['/gis-map']" [queryParams]="{ state: s.state }" class="state-link" (click)="$event.stopPropagation()"><strong>{{ s.state }}</strong></a></td>
                 <td>{{ s.total_projects }}</td>
                 <td>
                   @if (s.high_risk_count > 0) {
@@ -182,7 +182,7 @@
                 <td class="font-bold text-danger">{{ s.avg_delay_days }} Days</td>
                 <td class="font-mono font-bold">₹{{ s.total_cost_cr }} Cr</td>
                 <td class="text-right">
-                  <a [routerLink]="['/gis-map']" class="btn btn-sm btn-outline">
+                  <a [routerLink]="['/gis-map']" [queryParams]="{ state: s.state }" class="btn btn-sm btn-outline" (click)="$event.stopPropagation()">
                     View on GIS Map
                   </a>
                 </td>

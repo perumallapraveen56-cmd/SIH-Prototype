@@ -123,12 +123,12 @@
         </div>
       </div>
       <div class="banner-buttons">
-        <button class="banner-nav-btn shap-btn" (click)="navigateToShap()">
-          <span>AI Explainability (SHAP)</span>
+        <button class="banner-nav-btn whatif-btn primary-action" (click)="navigateToWhatIf()" id="btnBannerAiSimulate">
+          <span>AI Simulate</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
-        <button class="banner-nav-btn whatif-btn" (click)="navigateToWhatIf()">
-          <span>Recommendations & What-If</span>
+        <button class="banner-nav-btn shap-btn" (click)="navigateToShap()" id="btnBannerShap">
+          <span>AI Explainability (SHAP)</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       </div>
@@ -239,7 +239,7 @@
       </div>
     </div>
 
-    <!-- BOTTOM SCREEN ACTION (Requirement #4 & #5: [ AI SIMULATE ]) -->
+    <!-- BOTTOM SCREEN ACTION: [ AI SIMULATE ] -> What-If Simulation -->
     <div class="bottom-simulate-container">
       <div class="simulate-card-prompt">
         <div class="prompt-icon">
@@ -247,12 +247,12 @@
         </div>
         <div class="prompt-text">
           <h3>Simulate Delay Trajectories & Root Cause Attributions</h3>
-          <p>Proceed to game-theoretic TreeSHAP feature waterfalls and AI scenario mitigations for <strong>{{ p.project_code }} - {{ p.name }}</strong>.</p>
+          <p>Proceed to interactive What-If scenario interventions and TreeSHAP feature attributions for <strong>{{ p.project_code }} - {{ p.name }}</strong>.</p>
         </div>
       </div>
       <div class="simulate-btn-wrap">
-        <button class="btn-ai-simulate" (click)="navigateToShap()" id="btnAiSimulate">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path><path d="M9.5 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"></path></svg>
+        <button class="btn-ai-simulate" (click)="navigateToWhatIf()" id="btnAiSimulate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
           <span>AI SIMULATE</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>

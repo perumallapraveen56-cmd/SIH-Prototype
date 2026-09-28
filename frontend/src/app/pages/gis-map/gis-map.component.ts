@@ -45,7 +45,13 @@ export class GisMapComponent implements OnInit, AfterViewInit, OnDestroy {
       if (risk) {
         this.selectedRisk.set(risk.toUpperCase());
       }
-      this.fetchMarkers();
+      const state = params.get('state');
+      if (state) {
+        this.selectedState.set(state);
+      }
+      const pIdStr = params.get('projectId');
+      const targetPId = pIdStr ? parseInt(pIdStr, 10) : undefined;
+      this.fetchMarkers(targetPId);
     });
   }
 
@@ -84,7 +90,7 @@ export class GisMapComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  public fetchMarkers(): void {
+  public fetchMarkers(targetProjectId?: number): void {
     this.isLoading.set(true);
     const filter = {
       state: this.selectedState() || undefined,
@@ -97,11 +103,18 @@ export class GisMapComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (data) => {
         this.markers.set(data);
         this.isLoading.set(false);
-        if (data.length > 0 && !this.selectedMarker()) {
+        if (targetProjectId) {
+          const match = data.find(m => m.id === targetProjectId);
+          if (match) {
+            this.selectedMarker.set(match);
+          } else if (data.length > 0 && !this.selectedMarker()) {
+            this.selectedMarker.set(data[0]);
+          }
+        } else if (data.length > 0 && !this.selectedMarker()) {
           this.selectedMarker.set(data[0]); // Select first marker for side panel
         }
         if (this.map) {
-          this.renderMarkersOnMap();
+          this.renderMarkersOnMap(targetProjectId);
         }
       },
       error: (err) => {
@@ -123,7 +136,7 @@ export class GisMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.fetchMarkers();
   }
 
-  private renderMarkersOnMap(): void {
+  private renderMarkersOnMap(targetProjectId?: number): void {
     if (!this.map || !this.markersLayer) return;
 
     this.markersLayer.clearLayers();
@@ -212,6 +225,14 @@ export class GisMapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.markersLayer!.addLayer(leafletMarker);
       bounds.extend([m.latitude, m.longitude]);
     });
+
+    if (targetProjectId) {
+      const target = this.markers().find(m => m.id === targetProjectId);
+      if (target && this.map) {
+        this.map.setView([target.latitude, target.longitude], 9, { animate: true });
+        return;
+      }
+    }
 
     if (this.markers().length > 0 && bounds.isValid()) {
       this.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 8 });

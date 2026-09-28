@@ -75,18 +75,24 @@ Follow this sequence to inspect all prototype capabilities matching the referenc
    - Click pins to view delay duration, cost impact, and inspect details.
 4. **Project Risk Details (`/projects/:id`)**:
    - Metadata dossier, acquisition progress track, daily cost burn rate.
-   - Top 8 risk factor contribution percentages with severity badges.
-5. **AI Explainability (`/shap?projectId=:id`)**:
-   - Interactive TreeSHAP horizontal waterfall visualization.
-   - Explains how each statutory factor shifts the predicted delay from the baseline.
-6. **What-If Simulator & Recommendations (`/what-if?projectId=:id`)**:
-   - Adjust dispute settlement, surveyor staffing, and circle rate sliders.
+   - Primary action button **"AI Simulate"** triggers the What-If intervention optimizer.
+5. **What-If Simulator & Intervention Optimizer (`/what-if?projectId=:id`)**:
+   - Adjust dispute settlement, surveyor staffing, and fast-track approval sliders.
    - Backend dynamically recalculates post-intervention delay days and financial savings in ₹ Crores.
-7. **Alerts & Sound Chime (`/alerts`)**:
+   - Dedicated navigation link to **"SHAP Explainability"**.
+6. **AI Explainability (`/shap?projectId=:id`)**:
+   - Interactive TreeSHAP horizontal waterfall visualization.
+   - Quantifies how statutory factors contribute to the predicted delay baseline.
+   - Dedicated navigation link to **"Explainable AI (Directives)"**.
+7. **Explainable AI & Strategic Directives (`/explainable-ai?projectId=:id`)**:
+   - High-level executive decision-support dashboard for District Magistrates & Project Directors.
+   - Top SHAP-derived risk drivers, root-cause interpretation, statutory administrative delegation matrix, and SOP mitigation directives.
+   - Explicit **"Return to SHAP Explainability"** button preserving project context.
+8. **Alerts & Sound Chime (`/alerts`)**:
    - Automated 15-second background poller.
    - Test audio chime button.
    - "Trigger Live Delay Spike" button to simulate an escalated event with live audio notification.
-8. **Statutory Reports & Land Records (`/reports` & `/land-records`)**:
+9. **Statutory Reports & Land Records (`/reports` & `/land-records`)**:
    - Download official ReportLab-generated PDF compliance dossiers.
    - Filter cadastral land parcels, Khasra numbers, and dispute litigation status.
 
@@ -139,15 +145,16 @@ npm start
 
 ---
 
-## 🧪 Automated Testing & Verification
-
 ```powershell
-# Verify Python backend endpoints and services
+# Run Backend Test Suite (10/10 automated tests)
 cd backend
-.\.venv\Scripts\python.exe -c "from app.services.project_service import get_projects; from app.database.session import SessionLocal; db = SessionLocal(); print('Loaded', len(get_projects(db)), 'projects successfully.')"
+.\.venv\Scripts\python.exe -m pytest
 
-# Verify Angular frontend compilation
-cd frontend
+# Run Frontend Unit Tests (Vitest / Karma)
+cd ../frontend
+npm test -- --watch=false
+
+# Run Frontend Production Build
 npm run build
 ```
 

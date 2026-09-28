@@ -1,0 +1,390 @@
+<div class="explainable-ai-page">
+  <!-- Top Bar: Breadcrumb, Titles, Corridor Selector, and Return Action -->
+  <div class="page-header">
+    <div class="header-breadcrumb">
+      <a routerLink="/projects">Projects</a>
+      <span>/</span>
+      <a routerLink="/gis-map">GIS Map</a>
+      <span>/</span>
+      <a [routerLink]="['/projects', selectedProjectId()]">Project #{{ selectedProjectId() }}</a>
+      <span>/</span>
+      <a routerLink="/what-if" [queryParams]="{ projectId: selectedProjectId() }">AI Simulation</a>
+      <span>/</span>
+      <a routerLink="/shap" [queryParams]="{ projectId: selectedProjectId() }">SHAP Explainability</a>
+      <span>/</span>
+      <span class="curr">Explainable AI</span>
+    </div>
+
+    <div class="header-titles">
+      <div class="title-badge-row">
+        <span class="exec-badge">Executive Decision Support</span>
+        <span class="statutory-badge">RFCTLARR 2013 Statutory Compliance</span>
+      </div>
+      <h1 class="page-title">Explainable AI & Strategic Mitigation Directives</h1>
+      <p class="page-desc">Translating machine learning attributions into actionable administrative interventions, responsible delegations, and schedule recovery SOPs</p>
+    </div>
+
+    <div class="header-actions-wrap">
+      <div class="project-selector-box">
+        <label>Active Corridor:</label>
+        <select [ngModel]="selectedProjectId()" (ngModelChange)="onProjectChange($event)" class="project-select">
+          @for (p of allProjects(); track p.id) {
+            <option [value]="p.id">
+              {{ p.project_code }} - {{ p.name }} ({{ p.risk_level }})
+            </option>
+          }
+        </select>
+      </div>
+
+      <button type="button" class="btn-proceed-whatif" (click)="navigateToWhatIf()" id="btnHeaderWhatIf">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+        <span>Simulate Interventions in What-If</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+
+      <button type="button" class="btn-return-shap" (click)="returnToShap()" id="btnReturnToShap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        <span>Back to SHAP</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Pipeline Progress Flow (Step 4 of 4: Explainable AI Active) -->
+  <div class="pipeline-progress-bar">
+    <span class="pipe-label">Decision Pipeline:</span>
+    <div class="pipe-steps">
+      <a [routerLink]="['/projects', selectedProjectId()]" class="step-pill done">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>1. Project Details</span>
+      </a>
+      <span class="step-arrow">&rarr;</span>
+      <a routerLink="/what-if" [queryParams]="{ projectId: selectedProjectId() }" class="step-pill done">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>2. AI Simulate</span>
+      </a>
+      <span class="step-arrow">&rarr;</span>
+      <a routerLink="/shap" [queryParams]="{ projectId: selectedProjectId() }" class="step-pill done">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>3. SHAP Explainability</span>
+      </a>
+      <span class="step-arrow">&rarr;</span>
+      <span class="step-pill active">
+        <span class="active-dot"></span>
+        <span>4. Explainable AI View</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="state-card loading-state">
+      <div class="loader-spinner"></div>
+      <h3>Synthesizing Explainable AI Mitigations...</h3>
+      <p>Aggregating TreeSHAP attributions, statutory standard operating procedures, and financial risk models.</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (!isLoading() && errorMessage()) {
+    <div class="state-card error-state">
+      <h3>Decision Support Error</h3>
+      <p>{{ errorMessage() }}</p>
+      <button class="retry-btn" (click)="loadAllData(selectedProjectId())">Retry Evaluation</button>
+    </div>
+  }
+
+  <!-- Main Content Body -->
+  @if (!isLoading() && project(); as p) {
+    <!-- 1. EXECUTIVE MITIGATION KPI SUMMARY -->
+    <div class="executive-summary-card">
+      <div class="summary-top">
+        <div class="project-identity">
+          <span class="proj-code font-mono">{{ p.project_code }}</span>
+          <h2 class="proj-name">{{ p.name }}</h2>
+          <span class="proj-geo">{{ p.district }}, {{ p.state }} • Stage: {{ p.current_stage }}</span>
+        </div>
+
+        <div class="risk-indicator-box">
+          <span class="risk-label">Current Predictive Risk</span>
+          <span class="risk-pill" [ngClass]="getRiskSeverityClass(p.risk_prediction?.risk_level)">
+            {{ p.risk_prediction?.risk_level || 'LOW' }} RISK
+          </span>
+          <span class="risk-detail font-mono">Score: {{ p.risk_prediction?.risk_score || 0 }} / 100</span>
+        </div>
+      </div>
+
+      <div class="kpi-metrics-row">
+        <!-- Baseline Delay Slippage -->
+        <div class="metric-cell">
+          <span class="metric-tag">Baseline Delay Risk</span>
+          <div class="metric-num text-danger">+{{ p.risk_prediction?.predicted_delay_days || 0 }} Days</div>
+          <span class="metric-hint">Trajectory without intervention</span>
+        </div>
+
+        <!-- Potential Schedule Compression -->
+        <div class="metric-cell highlight-green">
+          <span class="metric-tag">Expected Delay Recovery</span>
+          <div class="metric-num text-success">
+            -{{ recommendations()?.total_potential_delay_reduction_days || 35 }} Days
+          </div>
+          <span class="metric-hint">Via targeted administrative SOPs</span>
+        </div>
+
+        <!-- Expected Cost Avoidance -->
+        <div class="metric-cell highlight-indigo">
+          <span class="metric-tag">Projected Cost Avoidance</span>
+          <div class="metric-num text-indigo">
+            ₹ {{ recommendations()?.total_potential_savings_cr || 0 }} Cr
+          </div>
+          <span class="metric-hint">At ₹ {{ p.daily_delay_cost_lakhs }} L/day rate</span>
+        </div>
+
+        <!-- Leading Bottleneck -->
+        <div class="metric-cell">
+          <span class="metric-tag">Primary Attribution Driver</span>
+          <div class="metric-val-lead">
+            {{ shapData()?.features?.[0]?.feature || 'Compensation Backlog' }}
+          </div>
+          <span class="metric-hint font-mono">
+            {{ shapData()?.features?.[0]?.contribution_pct || 0 }}% total contribution
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. TWO-COLUMN DEEP-DIVE: ROOT-CAUSE INTERPRETATION & RESPONSIBLE ADMINISTRATIVE DELEGATION -->
+    <div class="deep-dive-grid">
+      <!-- Left Column: Top SHAP-Derived Risk Drivers & Root-Cause Interpretation -->
+      <div class="deep-card">
+        <div class="deep-header">
+          <div class="deep-title-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path><path d="M9.5 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"></path></svg>
+            <h3 class="deep-title">Top SHAP-Derived Risk Drivers & Root-Cause Interpretation</h3>
+          </div>
+          <span class="deep-tag">Model Attributions</span>
+        </div>
+
+        <!-- Root-Cause Interpretation Narrative -->
+        <div class="interpretation-box">
+          <div class="interp-heading">
+            <span class="interp-badge">Executive Root-Cause Finding</span>
+            <span class="interp-model font-mono">{{ shapData()?.model_used }}</span>
+          </div>
+          <p class="interp-narrative">
+            {{ shapData()?.explanation_summary || 'Analysis confirms delay is primarily driven by Title Verification backlogs in special revenue camps and pending Lok Adalat civil settlements.' }}
+          </p>
+        </div>
+
+        <!-- SHAP Driver Breakdown List -->
+        <div class="drivers-breakdown">
+          <h4 class="sub-heading">SHAP Local Factor Decomposition (Ranked by Delay Contribution)</h4>
+          <div class="driver-items-list">
+            @for (f of shapData()?.features; track f.feature) {
+              <div class="driver-row">
+                <div class="driver-info">
+                  <span class="driver-name">{{ f.feature }}</span>
+                  <span class="driver-desc">{{ f.impact_label }}</span>
+                </div>
+
+                <div class="driver-bar-wrapper">
+                  <div class="bar-shell">
+                    <div
+                      class="bar-core"
+                      [class.core-danger]="f.direction === 'increases_risk'"
+                      [class.core-safe]="f.direction === 'decreases_risk'"
+                      [style.width.%]="f.contribution_pct * 2.8"
+                    ></div>
+                  </div>
+                </div>
+
+                <div class="driver-values">
+                  <span class="driver-pct" [class.text-danger]="f.direction === 'increases_risk'">
+                    {{ f.direction === 'increases_risk' ? '+' : '-' }}{{ f.contribution_pct }}%
+                  </span>
+                  <span class="driver-raw font-mono">SHAP: {{ f.shap_value }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Action Priority & Responsible Administrative Delegation -->
+      <div class="deep-card">
+        <div class="deep-header">
+          <div class="deep-title-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <h3 class="deep-title">Action Priority & Administrative Delegation Matrix</h3>
+          </div>
+          <span class="deep-tag">Statutory Responsibility</span>
+        </div>
+
+        <div class="delegation-table-card">
+          <p class="matrix-desc">
+            Direct statutory assignment mapping high-impact delay bottlenecks to responsible administrative officers and resolution service level agreements (SLAs).
+          </p>
+
+          <div class="delegation-items">
+            @for (rec of recommendations()?.recommendations; track rec.id) {
+              @let delegation = getResponsibleAuthority(rec.category);
+              <div class="delegation-row-card">
+                <div class="del-top">
+                  <span class="del-category">{{ rec.category }}</span>
+                  <span class="del-priority-badge" [ngClass]="getPriorityBadgeClass(rec.priority)">
+                    {{ rec.priority }} PRIORITY
+                  </span>
+                </div>
+
+                <div class="del-role-box">
+                  <span class="del-level-label">{{ delegation.level }}</span>
+                  <span class="del-designation">{{ delegation.designation }}</span>
+                </div>
+
+                <div class="del-statutory-row">
+                  <span class="stat-ref">{{ delegation.statutoryRef }}</span>
+                  <span class="sla-window">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    SLA: {{ delegation.slaWindow }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. RECOMMENDED ADMINISTRATIVE ACTIONS & INTERVENTION SOP STEPS -->
+    <div class="actions-section-card">
+      <div class="section-header-row">
+        <div class="header-left">
+          <div class="section-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+          </div>
+          <div>
+            <h3 class="section-title">Recommended Administrative Actions & Statutory SOP Steps</h3>
+            <p class="section-subtitle">Targeted operational directives designed to eliminate identified SHAP bottleneck contributors</p>
+          </div>
+        </div>
+
+        <div class="summary-badge-group">
+          <span class="savings-badge">
+            Total Impact: <strong>-{{ recommendations()?.total_potential_delay_reduction_days || 35 }} Days</strong>
+          </span>
+          <span class="savings-badge green">
+            Cost Avoidance: <strong>₹ {{ recommendations()?.total_potential_savings_cr || 0 }} Cr</strong>
+          </span>
+        </div>
+      </div>
+
+      <div class="recommendations-container">
+        @for (r of recommendations()?.recommendations; track r.id) {
+          @let auth = getResponsibleAuthority(r.category);
+          <div class="sop-card">
+            <div class="sop-card-header">
+              <div class="sop-tags">
+                <span class="sop-category-tag">{{ r.category }}</span>
+                <span class="sop-priority-tag" [ngClass]="getPriorityBadgeClass(r.priority)">
+                  {{ r.priority }} PRIORITY
+                </span>
+                <span class="sop-authority-pill">{{ auth.designation }}</span>
+              </div>
+
+              <div class="sop-gains">
+                <span class="gain-badge delay">-{{ r.potential_delay_reduction_days }} Days Delay</span>
+                <span class="gain-badge cost">Save ₹ {{ r.potential_cost_savings_cr }} Cr</span>
+                <button type="button" class="btn-sop-simulate" (click)="simulateRecommendation(r)" [title]="'Simulate ' + r.title + ' in What-If'">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  <span>Simulate in What-If</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="sop-body">
+              <h4 class="sop-action-title">{{ r.title }}</h4>
+              <p class="sop-action-desc">{{ r.description }}</p>
+
+              <!-- Standard Operating Procedure Steps -->
+              <div class="sop-steps-panel">
+                <div class="steps-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                  <span>Statutory Standard Operating Procedure (SOP) Directives:</span>
+                </div>
+
+                <ol class="sop-ordered-list">
+                  @for (step of r.action_steps; track step) {
+                    <li>{{ step }}</li>
+                  }
+                </ol>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- 4. FINANCIAL & SCHEDULE MITIGATION SCENARIOS -->
+    @if (financialImpact(); as fin) {
+      <div class="financial-scenarios-card">
+        <div class="card-header-clean">
+          <div class="fin-title-group">
+            <h3 class="fin-heading">Financial & Schedule Mitigation Scenarios</h3>
+            <p class="fin-sub">
+              Quantified using corridor cost rate: <strong>₹ {{ fin.daily_delay_cost_lakhs }} Lakhs/Day</strong> (Base Budget: ₹ {{ fin.base_budget_cr }} Cr)
+            </p>
+          </div>
+          <span class="fin-badge">Dynamic Calibrated Model</span>
+        </div>
+
+        <div class="fin-cards-grid">
+          @for (s of fin.scenarios; track s.scenario_label) {
+            <div class="fin-scenario-item" [ngClass]="'impact-' + s.impact_level.toLowerCase()">
+              <div class="item-top">
+                <span class="scen-name">{{ s.scenario_label }}</span>
+                <span class="scen-badge">{{ s.impact_level }}</span>
+              </div>
+
+              <div class="item-delay">
+                <span class="num-days">{{ s.total_delay_days }}</span>
+                <span class="lbl-days">Total Days Delay</span>
+              </div>
+
+              <div class="item-cost">
+                <span class="lbl-cost">Cost Impact</span>
+                <span class="val-cost">₹ {{ s.estimated_cost_cr }} Cr</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- 5. BOTTOM NAVIGATION & DECISION CONFIRMATION BAR -->
+    <div class="decision-footer-bar">
+      <div class="footer-left-info">
+        <span class="footer-status-dot"></span>
+        <span class="footer-status-text">
+          Explainable AI Decision Support Active for <strong>{{ p.project_code }} - {{ p.name }}</strong>
+        </span>
+      </div>
+
+      <div class="footer-buttons">
+        <button type="button" class="btn-footer-project" (click)="navigateToProject()" id="btnViewProjectDetails">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span>View Project Details</span>
+        </button>
+
+        <button type="button" class="btn-footer-shap" (click)="returnToShap()" id="btnBottomReturnShap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          <span>Return to SHAP</span>
+        </button>
+
+        <button type="button" class="btn-footer-whatif primary" (click)="navigateToWhatIf()" id="btnBottomSimulateWhatIf">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+          <span>Proceed to What-If Intervention Simulation</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  }
+</div>

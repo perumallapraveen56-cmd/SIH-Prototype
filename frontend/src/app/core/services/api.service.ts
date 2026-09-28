@@ -11,12 +11,13 @@ import { WhatIfRequest, WhatIfResponse, FinancialImpactResponse } from '../model
 import { AlertItem, AlertPollResponse } from '../models/alert.model';
 import { ReportGenerateRequest } from '../models/report.model';
 import { LandParcel } from '../models/parcel.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  private readonly baseUrl = 'http://localhost:8000/api';
+  private readonly baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -113,7 +114,20 @@ export class ApiService {
 
   // Reports
   public generateReport(request: ReportGenerateRequest): Observable<any> {
+    if (request.export_format?.toLowerCase() === 'pdf') {
+      return this.http.post(`${this.baseUrl}/reports/generate`, request, {
+        headers: this.getHeaders(),
+        responseType: 'blob' as 'json'
+      });
+    }
     return this.http.post(`${this.baseUrl}/reports/generate`, request, { headers: this.getHeaders() });
+  }
+
+  public downloadProjectReportPdf(projectId: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/reports/download-pdf/${projectId}`, {
+      headers: this.getHeaders(),
+      responseType: 'blob'
+    });
   }
 
   public downloadProjectReportPdfUrl(projectId: number): string {
