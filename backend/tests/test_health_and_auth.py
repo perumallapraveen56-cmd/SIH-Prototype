@@ -24,3 +24,17 @@ def test_auth_invalid_token(client):
     response = client.get("/api/auth/me", headers={"Authorization": "Bearer invalid.token.value"})
     assert response.status_code == 401
     assert "Invalid or expired token" in response.json()["detail"]
+
+def test_openapi_security_scheme(client):
+    response = client.get("/openapi.json")
+    assert response.status_code == 200
+    schema = response.json()
+    security_schemes = schema.get("components", {}).get("securitySchemes", {})
+    assert "HTTPBearer" in security_schemes
+    assert security_schemes["HTTPBearer"]["type"] == "http"
+    assert security_schemes["HTTPBearer"]["scheme"] == "bearer"
+    assert "OAuth2PasswordBearer" not in security_schemes
+    # Verify protected route has HTTPBearer security requirement
+    me_security = schema["paths"]["/api/auth/me"]["get"].get("security", [])
+    assert {"HTTPBearer": []} in me_security
+

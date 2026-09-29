@@ -1,6 +1,6 @@
 from typing import Generator, Optional, List
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 
@@ -9,12 +9,16 @@ from app.database.session import get_db
 from app.models.user import User
 from app.schemas.auth import UserResponse
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login", auto_error=False)
+bearer_scheme = HTTPBearer(
+    auto_error=False,
+    description="Enter the JWT access token returned by POST /api/auth/login"
+)
 
 def get_current_user(
     db: Session = Depends(get_db),
-    token: Optional[str] = Depends(oauth2_scheme)
+    auth: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme)
 ) -> User:
+    token: Optional[str] = auth.credentials if auth else None
     if not token:
         # For seamless demo testing or fallback, if demo header or unauthenticated
         # allow default officer profile in demo mode, but for real requests enforce validation
