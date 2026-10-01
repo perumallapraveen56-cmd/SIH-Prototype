@@ -21,3 +21,19 @@ describe('App', () => {
     expect(compiled.querySelector('router-outlet')).toBeTruthy();
   });
 });
+
+import { environment as prodEnv } from '../environments/environment.prod';
+
+describe('Production Environment Configuration', () => {
+  it('should be configured for production', () => {
+    expect(prodEnv.production).toBe(true);
+  });
+
+  it('should use the production Render backend API URL and never localhost or port 8000', () => {
+    expect(prodEnv.apiUrl).toBe('https://sih-prototype-397y.onrender.com/api');
+    expect(prodEnv.apiUrl).not.toContain('localhost');
+    expect(prodEnv.apiUrl).not.toContain('127.0.0.1');
+    expect(prodEnv.apiUrl).not.toContain(':8000');
+  });
+});
+

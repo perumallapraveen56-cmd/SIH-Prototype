@@ -41,7 +41,12 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         this.hasError.set(true);
-        this.errorMessage.set('Failed to connect to backend server. Please verify backend is running on port 8000.');
+        if (err?.status === 401) {
+          this.errorMessage.set('Session expired or unauthorized. Please re-login.');
+          this.authService.logout();
+        } else {
+          this.errorMessage.set('Failed to connect to backend server. Please verify backend connection.');
+        }
         this.isLoading.set(false);
       }
     });
